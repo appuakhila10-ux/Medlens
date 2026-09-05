@@ -70,12 +70,14 @@ export const EditTestModal: React.FC<EditTestModalProps> = ({
     >
       <form onSubmit={handleSave} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Test Name
+          <label htmlFor="edit-test-name" className="block text-xs font-semibold text-slate-700 mb-1">
+            Test Name <span className="text-rose-600">*</span>
           </label>
           <input
+            id="edit-test-name"
             type="text"
             value={testName}
+            aria-required="true"
             onChange={(e) => setTestName(e.target.value)}
             className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
@@ -84,12 +86,14 @@ export const EditTestModal: React.FC<EditTestModalProps> = ({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Extracted Value
+            <label htmlFor="edit-test-value" className="block text-xs font-semibold text-slate-700 mb-1">
+              Extracted Value <span className="text-rose-600">*</span>
             </label>
             <input
+              id="edit-test-value"
               type="text"
               value={value}
+              aria-required="true"
               onChange={(e) => setValue(e.target.value)}
               className="w-full px-3 py-2 text-sm font-mono border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
@@ -97,12 +101,14 @@ export const EditTestModal: React.FC<EditTestModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Unit
+            <label htmlFor="edit-test-unit" className="block text-xs font-semibold text-slate-700 mb-1">
+              Unit <span className="text-rose-600">*</span>
             </label>
             <input
+              id="edit-test-unit"
               type="text"
               value={unit}
+              aria-required="true"
               onChange={(e) => setUnit(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
@@ -111,26 +117,30 @@ export const EditTestModal: React.FC<EditTestModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Source Report Reference Range
+          <label htmlFor="edit-test-reference-range" className="block text-xs font-semibold text-slate-700 mb-1">
+            Source Report Reference Range <span className="text-rose-600">*</span>
           </label>
           <input
+            id="edit-test-reference-range"
             type="text"
             value={referenceRange}
+            aria-required="true"
+            aria-describedby="edit-test-range-hint"
             onChange={(e) => setReferenceRange(e.target.value)}
             className="w-full px-3 py-2 text-sm font-mono border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
-          <p className="text-[11px] text-slate-400 mt-1">
+          <p id="edit-test-range-hint" className="text-[11px] text-slate-500 mt-1">
             Must reflect the exact reference range printed on the source laboratory report.
           </p>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label htmlFor="edit-test-status" className="block text-xs font-semibold text-slate-700 mb-1">
             Status Indicator (relative to source range)
           </label>
           <select
+            id="edit-test-status"
             value={status}
             onChange={(e) => setStatus(e.target.value as LabStatus)}
             className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"

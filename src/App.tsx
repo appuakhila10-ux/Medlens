@@ -231,6 +231,14 @@ export function App() {
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-800">
+      {/* Skip to Content Link for Keyboard / Screen Reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:font-semibold focus:rounded-lg focus:shadow-lg focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* Persistent Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar
@@ -259,7 +267,7 @@ export function App() {
         />
 
         {/* Dynamic Page Router */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main id="main-content" tabIndex={-1} className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto focus:outline-none">
           {activePage === 'dashboard' && (
             <DashboardPage
               patients={patients}
@@ -392,15 +400,22 @@ export function App() {
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-fadeIn">
+        <div 
+          role="status" 
+          aria-live="polite" 
+          aria-atomic="true"
+          className="fixed bottom-6 right-6 z-50 animate-fadeIn"
+        >
           <div className="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs border border-slate-700">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true" />
             <span>{toastMessage}</span>
             <button
+              type="button"
               onClick={() => setToastMessage(null)}
-              className="text-slate-400 hover:text-white ml-2 cursor-pointer"
+              aria-label="Dismiss notification"
+              className="text-slate-400 hover:text-white ml-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </div>

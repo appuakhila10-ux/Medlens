@@ -113,24 +113,29 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label htmlFor="edit-patient-id" className="block text-xs font-semibold text-slate-700 mb-1">
               Patient ID
             </label>
             <input
+              id="edit-patient-id"
               type="text"
               value={patient.id}
               disabled
-              className="w-full px-3 py-2 text-sm font-mono font-bold bg-slate-100 text-slate-500 border border-slate-300 rounded-lg cursor-not-allowed"
+              className="w-full px-3 py-2 text-sm font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300 rounded-lg cursor-not-allowed"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label htmlFor="edit-patient-name" className="block text-xs font-semibold text-slate-700 mb-1">
               Full Name <span className="text-rose-600">*</span>
             </label>
             <input
+              id="edit-patient-name"
               type="text"
               value={name}
+              aria-required="true"
+              aria-invalid={errors.name ? 'true' : 'false'}
+              aria-describedby={errors.name ? 'edit-patient-name-error' : undefined}
               onChange={(e) => {
                 setName(e.target.value);
                 if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
@@ -140,7 +145,7 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
               }`}
             />
             {errors.name && (
-              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+              <p id="edit-patient-name-error" role="alert" className="text-xs text-rose-600 mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> {errors.name}
               </p>
             )}
@@ -149,14 +154,18 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label htmlFor="edit-patient-age" className="block text-xs font-semibold text-slate-700 mb-1">
               Age <span className="text-rose-600">*</span>
             </label>
             <input
+              id="edit-patient-age"
               type="number"
               value={age}
               min="0"
               max="130"
+              aria-required="true"
+              aria-invalid={errors.age ? 'true' : 'false'}
+              aria-describedby={errors.age ? 'edit-patient-age-error' : undefined}
               onChange={(e) => {
                 setAge(e.target.value);
                 if (errors.age) setErrors(prev => ({ ...prev, age: undefined }));
@@ -166,17 +175,18 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
               }`}
             />
             {errors.age && (
-              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+              <p id="edit-patient-age-error" role="alert" className="text-xs text-rose-600 mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> {errors.age}
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label htmlFor="edit-patient-sex" className="block text-xs font-semibold text-slate-700 mb-1">
               Biological Sex
             </label>
             <select
+              id="edit-patient-sex"
               value={sex}
               onChange={(e) => setSex(e.target.value as any)}
               className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
@@ -189,10 +199,11 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Symptoms <span className="text-slate-400 font-normal">(comma-separated)</span>
+          <label htmlFor="edit-patient-symptoms" className="block text-xs font-semibold text-slate-700 mb-1">
+            Symptoms <span className="text-slate-500 font-normal">(comma-separated)</span>
           </label>
           <input
+            id="edit-patient-symptoms"
             type="text"
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
@@ -201,10 +212,11 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Existing Conditions <span className="text-slate-400 font-normal">(comma-separated)</span>
+          <label htmlFor="edit-patient-conditions" className="block text-xs font-semibold text-slate-700 mb-1">
+            Existing Conditions <span className="text-slate-500 font-normal">(comma-separated)</span>
           </label>
           <input
+            id="edit-patient-conditions"
             type="text"
             value={conditions}
             onChange={(e) => setConditions(e.target.value)}
@@ -214,10 +226,11 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Allergies <span className="text-slate-400 font-normal">(comma-separated)</span>
+            <label htmlFor="edit-patient-allergies" className="block text-xs font-semibold text-slate-700 mb-1">
+              Allergies <span className="text-slate-500 font-normal">(comma-separated)</span>
             </label>
             <input
+              id="edit-patient-allergies"
               type="text"
               value={allergies}
               onChange={(e) => setAllergies(e.target.value)}
@@ -226,10 +239,11 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Medications <span className="text-slate-400 font-normal">(comma-separated)</span>
+            <label htmlFor="edit-patient-medications" className="block text-xs font-semibold text-slate-700 mb-1">
+              Medications <span className="text-slate-500 font-normal">(comma-separated)</span>
             </label>
             <input
+              id="edit-patient-medications"
               type="text"
               value={medications}
               onChange={(e) => setMedications(e.target.value)}
@@ -239,10 +253,11 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label htmlFor="edit-patient-notes" className="block text-xs font-semibold text-slate-700 mb-1">
             Additional Notes
           </label>
           <textarea
+            id="edit-patient-notes"
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

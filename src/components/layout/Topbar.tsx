@@ -31,11 +31,12 @@ export const Topbar: React.FC<TopbarProps> = ({
       <div className="flex items-center gap-3">
         {/* Mobile Hamburger */}
         <button
+          type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer"
+          className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
           aria-label="Open navigation menu"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-5 h-5" aria-hidden="true" />
         </button>
 
         <div>
@@ -51,17 +52,18 @@ export const Topbar: React.FC<TopbarProps> = ({
       {/* Right controls */}
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-xs text-slate-600 border border-slate-200/60">
-          <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+          <ShieldCheck className="w-3.5 h-3.5 text-teal-600" aria-hidden="true" />
           <span>Clinical Mode Active</span>
         </div>
 
         <button
+          type="button"
           onClick={() => onNavigate('conflicts')}
-          title="Potential Inconsistencies"
-          className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          aria-label="Potential Inconsistencies"
+          className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
         >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white" />
+          <Bell className="w-4 h-4" aria-hidden="true" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white" aria-hidden="true" />
         </button>
 
         <div className="h-6 w-px bg-slate-200 hidden sm:block" />

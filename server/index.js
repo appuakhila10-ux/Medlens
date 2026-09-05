@@ -5,12 +5,22 @@
 
 const express = require('express');
 const cors = require('cors');
+const { securityHeaders, rateLimiterMiddleware } = require('./middleware/security');
 const extractRouter = require('./routes/extract');
 const summarizeRouter = require('./routes/summarize');
 const conflictsRouter = require('./routes/conflicts');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Harden Express configuration
+app.disable('x-powered-by');
+
+// Apply Defensive Security Headers
+app.use(securityHeaders);
+
+// Apply Rate Limiter to protect AI / OCR endpoints
+app.use('/api', rateLimiterMiddleware({ limit: 60, windowMs: 60000 }));
 
 // Enable CORS for development frontend on port 5173
 app.use(cors({

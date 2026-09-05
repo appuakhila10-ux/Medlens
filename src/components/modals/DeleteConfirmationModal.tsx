@@ -30,6 +30,8 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
       onClose={onClose}
       title="Delete Patient Record"
       maxWidth="md"
+      role="alertdialog"
+      ariaDescribedby="delete-patient-desc"
       footer={
         <>
           <Button variant="outline" onClick={onClose}>
@@ -47,12 +49,12 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
     >
       <div className="space-y-4">
         <div className="flex items-start gap-3 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900">
-          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" aria-hidden="true" />
           <div className="space-y-1">
             <strong className="block font-semibold text-sm text-rose-950">
               Are you sure you want to delete this patient record?
             </strong>
-            <p className="text-rose-900/90 leading-relaxed">
+            <p id="delete-patient-desc" className="text-rose-900/90 leading-relaxed">
               This action will remove <strong>{patient.name}</strong> ({patient.id}) from the local clinical registry and stored diagnostic ledger. This action cannot be undone.
             </p>
           </div>

@@ -137,10 +137,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Patient ID (Auto-generated) */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Patient ID <span className="text-slate-400 font-normal">(Auto-generated)</span>
+            <label htmlFor="add-patient-id" className="block text-xs font-semibold text-slate-700 mb-1">
+              Patient ID <span className="text-slate-500 font-normal">(Auto-generated)</span>
             </label>
             <input
+              id="add-patient-id"
               type="text"
               value={generatedId}
               readOnly
@@ -151,13 +152,17 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
           {/* Full Name */}
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Patient Full Name <span className="text-rose-600">*</span>
+            <label htmlFor="add-patient-name" className="block text-xs font-semibold text-slate-700 mb-1">
+              Patient Full Name <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
             </label>
             <input
+              id="add-patient-name"
               type="text"
               placeholder="e.g. Eleanor Vance"
               value={name}
+              aria-required="true"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'add-name-error' : undefined}
               onChange={(e) => {
                 setName(e.target.value);
                 if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
@@ -167,8 +172,8 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
               }`}
             />
             {errors.name && (
-              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> {errors.name}
+              <p id="add-name-error" role="alert" className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" aria-hidden="true" /> {errors.name}
               </p>
             )}
           </div>
@@ -177,15 +182,19 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Age */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Age <span className="text-rose-600">*</span>
+            <label htmlFor="add-patient-age" className="block text-xs font-semibold text-slate-700 mb-1">
+              Age <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
             </label>
             <input
+              id="add-patient-age"
               type="number"
               placeholder="e.g. 58"
               value={age}
               min="0"
               max="130"
+              aria-required="true"
+              aria-invalid={!!errors.age}
+              aria-describedby={errors.age ? 'add-age-error' : undefined}
               onChange={(e) => {
                 setAge(e.target.value);
                 if (errors.age) setErrors(prev => ({ ...prev, age: undefined }));
@@ -195,19 +204,21 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
               }`}
             />
             {errors.age && (
-              <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> {errors.age}
+              <p id="add-age-error" role="alert" className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" aria-hidden="true" /> {errors.age}
               </p>
             )}
           </div>
 
           {/* Biological Sex */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Biological Sex <span className="text-rose-600">*</span>
+            <label htmlFor="add-patient-sex" className="block text-xs font-semibold text-slate-700 mb-1">
+              Biological Sex <span className="text-rose-600 font-bold" aria-hidden="true">*</span>
             </label>
             <select
+              id="add-patient-sex"
               value={sex}
+              aria-required="true"
               onChange={(e) => setSex(e.target.value as any)}
               className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
             >
@@ -220,10 +231,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
         {/* Symptoms */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Reported Symptoms <span className="text-slate-400 font-normal">(comma-separated or one per line)</span>
+          <label htmlFor="add-patient-symptoms" className="block text-xs font-semibold text-slate-700 mb-1">
+            Reported Symptoms <span className="text-slate-500 font-normal">(comma-separated or one per line)</span>
           </label>
           <input
+            id="add-patient-symptoms"
             type="text"
             placeholder="e.g. Fatigue, Mild exertional shortness of breath, Cold sensitivity"
             value={symptoms}
@@ -234,10 +246,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
         {/* Existing Conditions */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Existing Documented Conditions <span className="text-slate-400 font-normal">(comma-separated)</span>
+          <label htmlFor="add-patient-conditions" className="block text-xs font-semibold text-slate-700 mb-1">
+            Existing Documented Conditions <span className="text-slate-500 font-normal">(comma-separated)</span>
           </label>
           <input
+            id="add-patient-conditions"
             type="text"
             placeholder="e.g. Essential Hypertension, Type 2 Diabetes Mellitus, Osteopenia"
             value={conditions}
@@ -249,10 +262,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Allergies */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Documented Allergies <span className="text-slate-400 font-normal">(comma-separated)</span>
+            <label htmlFor="add-patient-allergies" className="block text-xs font-semibold text-slate-700 mb-1">
+              Documented Allergies <span className="text-slate-500 font-normal">(comma-separated)</span>
             </label>
             <input
+              id="add-patient-allergies"
               type="text"
               placeholder="e.g. Penicillin, Sulfa, Latex (or NKDA)"
               value={allergies}
@@ -263,10 +277,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
           {/* Medications */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Current Medications <span className="text-slate-400 font-normal">(comma-separated)</span>
+            <label htmlFor="add-patient-medications" className="block text-xs font-semibold text-slate-700 mb-1">
+              Current Medications <span className="text-slate-500 font-normal">(comma-separated)</span>
             </label>
             <input
+              id="add-patient-medications"
               type="text"
               placeholder="e.g. Metformin HCl 500mg, Lisinopril 10mg"
               value={medications}
@@ -278,10 +293,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
         {/* Additional Notes */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Additional Notes <span className="text-slate-400 font-normal">(optional clinical context)</span>
+          <label htmlFor="add-patient-notes" className="block text-xs font-semibold text-slate-700 mb-1">
+            Additional Notes <span className="text-slate-500 font-normal">(optional clinical context)</span>
           </label>
           <textarea
+            id="add-patient-notes"
             rows={2}
             placeholder="Document patient dietary observations, baseline notes, or special considerations..."
             value={notes}

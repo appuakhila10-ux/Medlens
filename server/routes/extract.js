@@ -8,6 +8,12 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const {
+  sanitizeFilename,
+  validateFileExtension,
+  validateMagicBytes,
+  sanitizeInput
+} = require('../middleware/security');
 
 const router = express.Router();
 
@@ -24,12 +30,11 @@ const upload = multer({
       'image/png',
       'text/plain'
     ];
-    const ext = path.extname(file.originalname).toLowerCase();
-    const allowedExts = ['.pdf', '.jpg', '.jpeg', '.png', '.txt'];
-    if (allowedMimeTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
+    const isExtAllowed = validateFileExtension(file.originalname);
+    if (allowedMimeTypes.includes(file.mimetype) || isExtAllowed) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype || ext}. Please upload PDF, JPG, JPEG, or PNG.`));
+      cb(new Error(`Unsupported file type: ${file.mimetype || path.extname(file.originalname)}. Only PDF, JPG, JPEG, PNG, and TXT are supported.`));
     }
   }
 });
@@ -171,13 +176,23 @@ router.post('/extract', upload.single('file'), async (req, res) => {
     }
 
     const { originalname, mimetype, size, buffer } = req.file;
-    const fileExtension = path.extname(originalname).replace('.', '').toUpperCase() || 'DOCUMENT';
+    const cleanFilename = sanitizeFilename(originalname);
+
+    // Defense-in-depth: Validate file content against binary magic bytes signature
+    if (!validateMagicBytes(buffer, cleanFilename)) {
+      return res.status(400).json({
+        error: 'Invalid file signature.',
+        details: 'File header magic bytes do not match the expected document structure. Uploads of disguised binaries or scripts are prohibited.'
+      });
+    }
+
+    const fileExtension = path.extname(cleanFilename).replace('.', '').toUpperCase() || 'DOCUMENT';
     const formattedSize = formatFileSize(size);
 
     // Step 2: Run OCR / text extraction
     let rawExtractedText = '';
     try {
-      rawExtractedText = await extractTextFromBuffer(buffer, mimetype, originalname);
+      rawExtractedText = await extractTextFromBuffer(buffer, mimetype, cleanFilename);
     } catch (ocrErr) {
       return res.status(422).json({
         error: 'Document text extraction failed.',
@@ -267,7 +282,7 @@ router.post('/extract', upload.single('file'), async (req, res) => {
         : 0.95;
 
     const reportBundle = {
-      fileName: originalname,
+      fileName: cleanFilename,
       fileType: fileExtension,
       fileSize: formattedSize,
       reportDate: reportDate,
