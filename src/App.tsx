@@ -14,14 +14,17 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AddPatientModal } from './components/modals/AddPatientModal';
 import { EditPatientModal } from './components/modals/EditPatientModal';
 import { DeleteConfirmationModal } from './components/modals/DeleteConfirmationModal';
-import { MOCK_LAB_RESULTS, MOCK_REPORTS } from './data/mockData';
-import { Patient, LabResult, MedicalReport, MedicalTest } from './types/clinical';
+import { Patient, MedicalReport, MedicalTest } from './types/clinical';
+import { ExtractedReportBundle } from './utils/extractor';
 import {
   getStoredPatients,
   createStoredPatient,
   updateStoredPatient,
   deleteStoredPatient,
-  getStoredMedicalTests
+  getStoredReports,
+  createStoredReport,
+  getStoredMedicalTests,
+  createStoredMedicalTests
 } from './utils/storage';
 import { CheckCircle2, ShieldAlert, Sparkles, X } from 'lucide-react';
 
@@ -35,11 +38,13 @@ export function App() {
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [deletingPatient, setDeletingPatient] = useState<Patient | null>(null);
 
+  // Extracted report bundle queued for human verification
+  const [activeExtractedBundle, setActiveExtractedBundle] = useState<ExtractedReportBundle | null>(null);
+
   // Core persistent data stores from localStorage
   const [patients, setPatients] = useState<Patient[]>(() => getStoredPatients());
+  const [reports, setReports] = useState<MedicalReport[]>(() => getStoredReports());
   const [medicalTests, setMedicalTests] = useState<MedicalTest[]>(() => getStoredMedicalTests());
-  const [labResults, setLabResults] = useState<LabResult[]>(MOCK_LAB_RESULTS);
-  const [reports, setReports] = useState<MedicalReport[]>(MOCK_REPORTS);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Sync selected patient ID on initial load or deletion fallback
@@ -53,7 +58,7 @@ export function App() {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 4000);
+    }, 4500);
   };
 
   const handleNavigate = (page: NavPage | 'verification', patientId?: string) => {
@@ -105,27 +110,55 @@ export function App() {
     setDeletingPatient(null);
   };
 
-  const handleConfirmLabItem = (id: string) => {
-    setLabResults(prev =>
-      prev.map(item => item.id === id ? { ...item, verificationStatus: 'verified' } : item)
-    );
-    showToast('Biomarker confirmed and verified into clinical ledger.');
+  // Workflow: Report uploaded & processed -> send to Verification
+  const handleReadyForVerification = (bundle: ExtractedReportBundle, assignedPatientId: string) => {
+    setActiveExtractedBundle(bundle);
+    setSelectedPatientId(assignedPatientId);
+    setActivePage('verification');
+    showToast(`Extraction complete (${bundle.tests.length} tests). Ready for clinical verification.`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleRejectLabItem = (id: string) => {
-    setLabResults(prev => prev.filter(item => item.id !== id));
-    showToast('Biomarker extraction rejected.');
-  };
+  // Workflow: Human verification complete -> save to patient record
+  const handleSaveToPatientRecord = (
+    reportData: Omit<MedicalReport, 'id'>,
+    testsData: Omit<MedicalTest, 'id'>[],
+    targetPatientId: string
+  ) => {
+    const newReportId = `REP-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  const handleUpdateLabItem = (updated: LabResult) => {
-    setLabResults(prev =>
-      prev.map(item => item.id === updated.id ? updated : item)
-    );
-    showToast(`Updated and verified ${updated.testName}.`);
+    const newReport: MedicalReport = {
+      ...reportData,
+      id: newReportId,
+      patientId: targetPatientId
+    };
+
+    const newTests: MedicalTest[] = testsData.map((t, idx) => ({
+      ...t,
+      id: `TEST-${Date.now()}-${idx}`,
+      reportId: newReportId,
+      patientId: targetPatientId,
+      verified: true
+    }));
+
+    // Save to persistent storage
+    createStoredReport(newReport);
+    createStoredMedicalTests(newTests);
+
+    // Refresh state from storage
+    setReports(getStoredReports());
+    setMedicalTests(getStoredMedicalTests());
+    setPatients(getStoredPatients());
+
+    setActiveExtractedBundle(null);
+    setSelectedPatientId(targetPatientId);
+    showToast(`Medical report "${reportData.fileName}" and ${newTests.length} tests verified & saved to patient record.`);
+    setActivePage('records');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const currentPatient = patients.find(p => p.id === selectedPatientId) || patients[0];
-  const pendingCount = patients.filter(p => p.verificationStatus === 'pending' || p.verificationStatus === 'in_review').length;
+  const pendingCount = reports.filter(r => r.verificationStatus === 'pending').length;
   const conflictCount = patients.reduce((acc, p) => acc + (p.conflictCount || 0), 0);
 
   return (
@@ -181,8 +214,10 @@ export function App() {
 
           {activePage === 'upload' && (
             <UploadReportPage
+              patients={patients}
+              selectedPatientId={selectedPatientId}
               onNavigate={(page, pid) => handleNavigate(page, pid)}
-              onProceedToVerification={() => handleNavigate('verification', selectedPatientId)}
+              onReadyForVerification={handleReadyForVerification}
             />
           )}
 
@@ -192,6 +227,7 @@ export function App() {
                 patient={currentPatient}
                 patientsList={patients}
                 medicalTests={medicalTests}
+                medicalReports={reports}
                 onSelectPatient={setSelectedPatientId}
                 onNavigate={(page, pid) => handleNavigate(page, pid)}
                 onOpenEditPatient={(p) => setEditingPatient(p)}
@@ -215,13 +251,12 @@ export function App() {
             </div>
           )}
 
-          {activePage === 'verification' && currentPatient && (
+          {activePage === 'verification' && (
             <VerificationPage
-              patient={currentPatient}
-              labResults={labResults}
-              onConfirmItem={handleConfirmLabItem}
-              onRejectItem={handleRejectLabItem}
-              onUpdateItem={handleUpdateLabItem}
+              patients={patients}
+              preSelectedPatientId={selectedPatientId}
+              extractedBundle={activeExtractedBundle}
+              onSaveToPatientRecord={handleSaveToPatientRecord}
               onNavigate={(page, pid) => handleNavigate(page, pid)}
             />
           )}

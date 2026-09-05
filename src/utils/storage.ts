@@ -1,7 +1,8 @@
-import { Patient, MedicalTest } from '../types/clinical';
+import { Patient, MedicalTest, MedicalReport } from '../types/clinical';
 
 const PATIENTS_STORAGE_KEY = 'medlens_patients_v1';
 const TESTS_STORAGE_KEY = 'medlens_medical_tests_v1';
+const REPORTS_STORAGE_KEY = 'medlens_reports_v1';
 
 export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
   {
@@ -35,7 +36,7 @@ export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
     updatedAt: "2026-08-28 14:15",
     lastReportDate: "2026-08-26",
     verificationStatus: "pending",
-    reportCount: 4,
+    reportCount: 2,
     conflictCount: 1,
     aiSummary: {
       text: "Records reflect an established history of hypertension and type 2 diabetes managed with oral pharmacotherapy. Recent laboratory data exhibits mild microcytic red blood cell indices and low serum ferritin in comparison to previous panels. Renal metabolic parameters remain documented within source report reference boundaries. An allergy discrepancy exists between the outpatient intake record and recent requisition form requiring staff verification.",
@@ -71,7 +72,7 @@ export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
     updatedAt: "2026-09-02 10:20",
     lastReportDate: "2026-09-01",
     verificationStatus: "verified",
-    reportCount: 3,
+    reportCount: 1,
     conflictCount: 0,
     aiSummary: {
       text: "Organized data from the September 2026 lipid follow-up panel shows LDL-C and Total Cholesterol values shifted lower compared to baseline testing from October 2025. Hepatic transaminases (ALT, AST) are noted within report-specific reference ranges. Medication record lists daily statin adherence.",
@@ -109,7 +110,7 @@ export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
     updatedAt: "2026-09-04 16:45",
     lastReportDate: "2026-09-03",
     verificationStatus: "in_review",
-    reportCount: 5,
+    reportCount: 1,
     conflictCount: 1,
     aiSummary: {
       text: "Comprehensive endocrine panel results from September 2026 document suppressed TSH and elevated Free T4 relative to laboratory reference intervals. Cardiac monitoring report notes resting sinus tachycardia without acute arrhythmia. Thyroid ultrasound report documented diffuse heterogeneity.",
@@ -148,14 +149,8 @@ export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
     updatedAt: "2026-08-30 11:20",
     lastReportDate: "2026-08-29",
     verificationStatus: "verified",
-    reportCount: 6,
-    conflictCount: 0,
-    aiSummary: {
-      text: "Longitudinal records summarize glycemic and renal functional indexes. Serum creatinine and estimated GFR (eGFR) have demonstrated stability across consecutive evaluations. Hemoglobin A1c is tracked across the last four quarters without significant acute trajectory shift.",
-      generatedAt: "2026-08-29 11:20",
-      recordsAnalyzedCount: 6,
-      disclaimer: "This summary organizes available medical information and is not a medical diagnosis or treatment recommendation."
-    }
+    reportCount: 1,
+    conflictCount: 0
   },
   {
     id: "ML-1046",
@@ -185,18 +180,232 @@ export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
     updatedAt: "2026-09-05 14:00",
     lastReportDate: "2026-09-04",
     verificationStatus: "pending",
-    reportCount: 2,
-    conflictCount: 0,
-    aiSummary: {
-      text: "Recent complete blood count extracted on September 4, 2026 exhibits hemoglobin of 9.8 g/dL alongside low MCV and low serum ferritin according to lab-reported reference intervals. Dietary records reinforce strict adherence to a gluten-free regimen.",
-      generatedAt: "2026-09-04 15:10",
-      recordsAnalyzedCount: 2,
-      disclaimer: "This summary organizes available medical information and is not a medical diagnosis or treatment recommendation."
-    }
+    reportCount: 1,
+    conflictCount: 0
   }
 ];
 
-// Helper to format date string
+export const DEFAULT_INITIAL_REPORTS: MedicalReport[] = [
+  {
+    id: "REP-4091",
+    patientId: "ML-1042",
+    fileName: "CBC_Differential_Report_Aug26.pdf",
+    fileType: "PDF",
+    fileSize: "1.4 MB",
+    reportDate: "2026-08-26",
+    uploadDate: "2026-08-26 13:42",
+    processingStatus: "Completed",
+    verificationStatus: "verified",
+    source: "St. Jude Regional Pathology Laboratory",
+    extractedEntitiesCount: 6,
+    patientName: "Eleanor Vance",
+    sourceFacility: "St. Jude Regional Pathology Laboratory",
+    extractedText: "CBC Panel with Differential. Hemoglobin 10.2 g/dL (Low). Hematocrit 31.4% (Low). WBC 6.8 x10^3/uL (Normal). Platelets 264 x10^3/uL (Normal)."
+  },
+  {
+    id: "REP-4092",
+    patientId: "ML-1042",
+    fileName: "Metabolic_Panel_CMP_Aug26.pdf",
+    fileType: "PDF",
+    fileSize: "2.1 MB",
+    reportDate: "2026-08-26",
+    uploadDate: "2026-08-26 13:45",
+    processingStatus: "Completed",
+    verificationStatus: "verified",
+    source: "Quest Diagnostic Services",
+    extractedEntitiesCount: 5,
+    patientName: "Eleanor Vance",
+    sourceFacility: "Quest Diagnostic Services",
+    extractedText: "Comprehensive Metabolic Panel. Fasting Glucose 138 mg/dL (High). Creatinine 0.88 mg/dL (Normal). eGFR 82 mL/min/1.73m2 (Normal)."
+  },
+  {
+    id: "REP-4093",
+    patientId: "ML-1043",
+    fileName: "Annual_Lipid_Panel_Sep01.pdf",
+    fileType: "PDF",
+    fileSize: "890 KB",
+    reportDate: "2026-09-01",
+    uploadDate: "2026-09-01 09:12",
+    processingStatus: "Completed",
+    verificationStatus: "verified",
+    source: "BioReference Laboratories",
+    extractedEntitiesCount: 4,
+    patientName: "Marcus Chen",
+    sourceFacility: "BioReference Laboratories",
+    extractedText: "Lipid Profile. Total Cholesterol 184 mg/dL. LDL-C 108 mg/dL. HDL-C 52 mg/dL. Triglycerides 120 mg/dL."
+  },
+  {
+    id: "REP-4094",
+    patientId: "ML-1044",
+    fileName: "Endocrine_Thyroid_Screen_Sep03.jpg",
+    fileType: "JPG",
+    fileSize: "3.2 MB",
+    reportDate: "2026-09-03",
+    uploadDate: "2026-09-03 15:55",
+    processingStatus: "Pending Review",
+    verificationStatus: "pending",
+    source: "University Hospital Diagnostic Labs",
+    extractedEntitiesCount: 4,
+    patientName: "Sophia Rodriguez",
+    sourceFacility: "University Hospital Diagnostic Labs",
+    extractedText: "Thyroid Endocrine Panel. TSH 0.04 uIU/mL (Low). FT4 2.8 ng/dL (High). Total T3 215 ng/dL (High)."
+  }
+];
+
+export const DEFAULT_INITIAL_TESTS: MedicalTest[] = [
+  {
+    id: "TEST-101",
+    reportId: "REP-4091",
+    patientId: "ML-1042",
+    testName: "Hemoglobin",
+    value: "10.2",
+    unit: "g/dL",
+    referenceRange: "12.0 – 16.0 g/dL",
+    status: "Low",
+    date: "2026-08-26",
+    observation: "Microcytic presentation on peripheral smear",
+    source: "Extracted from report",
+    confidence: 0.96,
+    verified: true
+  },
+  {
+    id: "TEST-102",
+    reportId: "REP-4091",
+    patientId: "ML-1042",
+    testName: "Hematocrit",
+    value: "31.4",
+    unit: "%",
+    referenceRange: "37.0 – 48.0 %",
+    status: "Low",
+    date: "2026-08-26",
+    observation: "Red cell mass reduced",
+    source: "Extracted from report",
+    confidence: 0.98,
+    verified: true
+  },
+  {
+    id: "TEST-103",
+    reportId: "REP-4091",
+    patientId: "ML-1042",
+    testName: "White Blood Cells (WBC)",
+    value: "6.8",
+    unit: "x10^3/uL",
+    referenceRange: "4.5 – 11.0 x10^3/uL",
+    status: "Normal",
+    date: "2026-08-26",
+    observation: "Unremarkable differential",
+    source: "Extracted from report",
+    confidence: 0.99,
+    verified: true
+  },
+  {
+    id: "TEST-104",
+    reportId: "REP-4091",
+    patientId: "ML-1042",
+    testName: "Platelets",
+    value: "264",
+    unit: "x10^3/uL",
+    referenceRange: "150 – 450 x10^3/uL",
+    status: "Normal",
+    date: "2026-08-26",
+    observation: "Adequate thrombocyte count",
+    source: "Extracted from report",
+    confidence: 0.97,
+    verified: true
+  },
+  {
+    id: "TEST-105",
+    reportId: "REP-4092",
+    patientId: "ML-1042",
+    testName: "Fasting Blood Glucose",
+    value: "138",
+    unit: "mg/dL",
+    referenceRange: "70 – 99 mg/dL",
+    status: "High",
+    date: "2026-08-26",
+    observation: "Fasting glucose elevated",
+    source: "Extracted from report",
+    confidence: 0.98,
+    verified: true
+  },
+  {
+    id: "TEST-106",
+    reportId: "REP-4092",
+    patientId: "ML-1042",
+    testName: "Serum Creatinine",
+    value: "0.88",
+    unit: "mg/dL",
+    referenceRange: "0.59 – 1.04 mg/dL",
+    status: "Normal",
+    date: "2026-08-26",
+    observation: "Renal profile within report limits",
+    source: "Extracted from report",
+    confidence: 0.99,
+    verified: true
+  },
+  {
+    id: "TEST-107",
+    reportId: "REP-4092",
+    patientId: "ML-1042",
+    testName: "Serum Ferritin",
+    value: "14",
+    unit: "ng/mL",
+    referenceRange: "15 – 150 ng/mL",
+    status: "Low",
+    date: "2026-08-26",
+    observation: "Low circulating storage iron",
+    source: "Extracted from report",
+    confidence: 0.94,
+    verified: true
+  },
+  {
+    id: "TEST-108",
+    reportId: "REP-4092",
+    patientId: "ML-1042",
+    testName: "RBC Morphology Index",
+    value: "Microcytic hypochromic",
+    unit: "Qualitative",
+    referenceRange: "Reference range unavailable — status not determined.",
+    status: "Range unavailable",
+    date: "2026-08-26",
+    observation: "Reference range unavailable in source document",
+    source: "Extracted from report",
+    confidence: 0.91,
+    verified: true
+  },
+  // Marcus Chen (ML-1043)
+  {
+    id: "TEST-201",
+    reportId: "REP-4093",
+    patientId: "ML-1043",
+    testName: "Total Cholesterol",
+    value: "184",
+    unit: "mg/dL",
+    referenceRange: "< 200 mg/dL",
+    status: "Normal",
+    date: "2026-09-01",
+    observation: "Follow-up lipid evaluation",
+    source: "Extracted from report",
+    confidence: 0.98,
+    verified: true
+  },
+  {
+    id: "TEST-202",
+    reportId: "REP-4093",
+    patientId: "ML-1043",
+    testName: "LDL-C (Calculated)",
+    value: "108",
+    unit: "mg/dL",
+    referenceRange: "< 100 mg/dL",
+    status: "High",
+    date: "2026-09-01",
+    observation: "Calculated Friedewald equation",
+    source: "Extracted from report",
+    confidence: 0.97,
+    verified: true
+  }
+];
+
 export function getCurrentTimestamp(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -212,6 +421,7 @@ export function generatePatientId(): string {
   return `ML-${randNum}`;
 }
 
+// ---------------- Patients Storage ----------------
 export function getStoredPatients(): Patient[] {
   try {
     const raw = localStorage.getItem(PATIENTS_STORAGE_KEY);
@@ -220,10 +430,7 @@ export function getStoredPatients(): Patient[] {
       return DEFAULT_INITIAL_PATIENTS;
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
-    }
-    return parsed;
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_INITIAL_PATIENTS;
   } catch (err) {
     console.error("Failed to read patients from localStorage:", err);
     return DEFAULT_INITIAL_PATIENTS;
@@ -277,8 +484,8 @@ export function updateStoredPatient(id: string, updates: Partial<Patient>): Pati
   const updatedPatient: Patient = {
     ...patients[index],
     ...updates,
-    id, // protect ID from alteration
-    createdAt: patients[index].createdAt, // protect original creation time
+    id,
+    createdAt: patients[index].createdAt,
     updatedAt: timestamp
   };
 
@@ -295,20 +502,66 @@ export function deleteStoredPatient(id: string): boolean {
   return true;
 }
 
-export function getStoredMedicalTests(): MedicalTest[] {
+// ---------------- Reports Storage ----------------
+export function getStoredReports(): MedicalReport[] {
   try {
-    const raw = localStorage.getItem(TESTS_STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw);
+    const raw = localStorage.getItem(REPORTS_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(DEFAULT_INITIAL_REPORTS));
+      return DEFAULT_INITIAL_REPORTS;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : DEFAULT_INITIAL_REPORTS;
   } catch (err) {
-    console.error("Failed to read medical tests from localStorage:", err);
-    return [];
+    console.error("Failed to read reports from localStorage:", err);
+    return DEFAULT_INITIAL_REPORTS;
   }
 }
 
-export function getStoredMedicalTestsByPatient(patientId: string): MedicalTest[] {
-  const allTests = getStoredMedicalTests();
-  return allTests.filter(t => t.patientId === patientId);
+export function saveStoredReports(reports: MedicalReport[]): void {
+  try {
+    localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(reports));
+  } catch (err) {
+    console.error("Failed to save reports to localStorage:", err);
+  }
+}
+
+export function getStoredReportsByPatient(patientId: string): MedicalReport[] {
+  const all = getStoredReports();
+  return all.filter(r => r.patientId === patientId);
+}
+
+export function createStoredReport(report: MedicalReport): void {
+  const existing = getStoredReports();
+  const updated = [report, ...existing];
+  saveStoredReports(updated);
+
+  // Increment patient reportCount & update lastReportDate
+  const patients = getStoredPatients();
+  const patient = patients.find(p => p.id === report.patientId);
+  if (patient) {
+    updateStoredPatient(patient.id, {
+      reportCount: (patient.reportCount || 0) + 1,
+      lastReportDate: report.reportDate,
+      verificationStatus: 'verified'
+    });
+  }
+}
+
+// ---------------- Medical Tests Storage ----------------
+export function getStoredMedicalTests(): MedicalTest[] {
+  try {
+    const raw = localStorage.getItem(TESTS_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(TESTS_STORAGE_KEY, JSON.stringify(DEFAULT_INITIAL_TESTS));
+      return DEFAULT_INITIAL_TESTS;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : DEFAULT_INITIAL_TESTS;
+  } catch (err) {
+    console.error("Failed to read medical tests from localStorage:", err);
+    return DEFAULT_INITIAL_TESTS;
+  }
 }
 
 export function saveStoredMedicalTests(tests: MedicalTest[]): void {
@@ -317,4 +570,15 @@ export function saveStoredMedicalTests(tests: MedicalTest[]): void {
   } catch (err) {
     console.error("Failed to save medical tests to localStorage:", err);
   }
+}
+
+export function getStoredMedicalTestsByPatient(patientId: string): MedicalTest[] {
+  const allTests = getStoredMedicalTests();
+  return allTests.filter(t => t.patientId === patientId);
+}
+
+export function createStoredMedicalTests(newTests: MedicalTest[]): void {
+  const existing = getStoredMedicalTests();
+  const updated = [...newTests, ...existing];
+  saveStoredMedicalTests(updated);
 }

@@ -8,16 +8,40 @@ export type MedicalTestStatus = 'Normal' | 'Low' | 'High' | 'Range unavailable' 
 
 export interface MedicalTest {
   id: string;
+  reportId?: string;
   patientId: string;
   testName: string;
   value: string;
+  numericValue?: number;
   unit: string;
   referenceRange: string;
   status: MedicalTestStatus;
   date: string;
   observation?: string;
-  source: string;
+  source?: string;
   confidence?: number;
+  verified?: boolean;
+}
+
+export interface MedicalReport {
+  id: string;
+  patientId: string;
+  fileName?: string;
+  fileType: string;
+  fileSize?: string;
+  reportDate?: string;
+  uploadDate: string;
+  extractedText?: string;
+  processingStatus: 'Completed' | 'Pending Review' | 'Processing' | 'Failed';
+  verificationStatus?: VerificationStatus;
+  source?: string;
+  extractedEntitiesCount: number;
+  patientName?: string;
+  sourceFacility?: string;
+  reportName?: string;
+  date?: string;
+  reportType?: string;
+  extractionConfidence?: number;
 }
 
 export interface Patient {
@@ -60,24 +84,8 @@ export interface LabResult {
   sourceDocument: string;
   sourceDate: string;
   category: 'Hematology' | 'Metabolic' | 'Lipid' | 'Thyroid' | 'Urinalysis' | 'Other';
-  verificationStatus: VerificationStatus;
+  verificationStatus?: VerificationStatus;
   confidence: number;
-}
-
-export interface MedicalReport {
-  id: string;
-  patientId: string;
-  patientName: string;
-  reportName: string;
-  reportType: 'Complete Blood Count' | 'Comprehensive Metabolic Panel' | 'Lipid Profile' | 'Endocrine Panel' | 'Clinical Notes';
-  date: string;
-  uploadDate: string;
-  fileSize: string;
-  fileType: 'PDF' | 'JPG' | 'PNG';
-  processingStatus: 'Completed' | 'Pending Review' | 'Processing' | 'Failed';
-  extractedEntitiesCount: number;
-  extractionConfidence: number;
-  sourceFacility?: string;
 }
 
 export interface ComparisonItem {
@@ -126,6 +134,6 @@ export interface TimelineEvent {
   eventType: 'patient_updated' | 'report_uploaded' | 'report_verified' | 'ai_summary_generated' | 'record_edited';
   title: string;
   description: string;
-  source: string;
+  source?: string;
   actor: string;
 }

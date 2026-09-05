@@ -238,11 +238,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                           <FileText className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-slate-900 truncate" title={report.reportName}>
-                            {report.reportName}
+                          <p className="text-xs font-semibold text-slate-900 truncate" title={(report.reportName || report.fileName)}>
+                            {(report.reportName || report.fileName)}
                           </p>
                           <p className="text-[11px] text-slate-500 mt-0.5">
-                            {report.patientName} • {report.date}
+                            {report.patientName} • {(report.reportDate || report.date || 'Recent')}
                           </p>
                           <div className="flex items-center gap-2 mt-1.5">
                             <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
