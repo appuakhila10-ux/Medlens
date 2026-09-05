@@ -136,7 +136,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ patients }) => {
       )}
 
       {activeTab === 'privacy' && (
-        <Card title="Privacy & Data Traceability Protocol" subtitle="How MedLens handles HIPAA safeguards and source lineage">
+        <Card title="Privacy & Data Traceability Protocol" subtitle="Data lineage, non-diagnostic constraints, and source document tracking">
           <div className="space-y-4 text-xs text-slate-700 leading-relaxed max-w-3xl">
             <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
               <h4 className="font-semibold text-slate-900 mb-1">Source Document Lineage</h4>
@@ -156,28 +156,39 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ patients }) => {
       )}
 
       {activeTab === 'security' && (
-        <Card title="Security & Compliance Posture" subtitle="Enterprise cryptography, role access, and audit ledger">
+        <Card title="Security & Storage Architecture" subtitle="Current storage implementation, defensive controls, and architectural posture">
           <div className="space-y-3 max-w-2xl text-xs">
-            <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50/60">
               <div className="flex items-center gap-3">
-                <Lock className="w-5 h-5 text-blue-600" />
+                <Database className="w-5 h-5 text-amber-700 shrink-0" />
                 <div>
-                  <span className="font-semibold text-slate-900 block">AES-256 At-Rest Encryption</span>
-                  <span className="text-slate-500">Database and report blob stores encrypted with customer-managed keys.</span>
+                  <span className="font-semibold text-slate-900 block">Browser Client Storage (localStorage)</span>
+                  <span className="text-slate-600">Current storage is in-browser localStorage, unencrypted, with no backend database persistence yet.</span>
                 </div>
               </div>
-              <Badge status="verified" label="Active" />
+              <Badge status="pending" label="Prototype Storage" />
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
               <div className="flex items-center gap-3">
-                <Database className="w-5 h-5 text-teal-600" />
+                <Shield className="w-5 h-5 text-slate-500 shrink-0" />
                 <div>
-                  <span className="font-semibold text-slate-900 block">SOC-2 Type II & HIPAA Compliance</span>
-                  <span className="text-slate-500">Full audit trails recorded for all document queries and extractions.</span>
+                  <span className="font-semibold text-slate-900 block">Compliance & Certification Status</span>
+                  <span className="text-slate-500">Prototype/MVP environment. No HIPAA or SOC-2 certifications; local browser sandbox for clinical research and testing only.</span>
                 </div>
               </div>
-              <Badge status="verified" label="Compliant" />
+              <Badge status="rejected" label="Uncertified / Sandbox" />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
+              <div className="flex items-center gap-3">
+                <Lock className="w-5 h-5 text-blue-600 shrink-0" />
+                <div>
+                  <span className="font-semibold text-slate-900 block">Active Transport & Ingestion Controls</span>
+                  <span className="text-slate-500">25MB file upload cap, binary magic-byte validation, path traversal neutralization, sliding-window rate limiting, and defensive HTTP security headers.</span>
+                </div>
+              </div>
+              <Badge status="verified" label="Active" />
             </div>
           </div>
         </Card>

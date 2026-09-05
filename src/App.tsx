@@ -31,7 +31,7 @@ import {
 } from './utils/storage';
 import { generatePatientAISummary } from './utils/aiSummary';
 import { detectClinicalConflicts } from './utils/conflictDetector';
-import { CheckCircle2, ShieldAlert, Sparkles, X } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, Sparkles, X, AlertTriangle } from 'lucide-react';
 
 export function App() {
   const [activePage, setActivePage] = useState<NavPage | 'verification'>('dashboard');
@@ -265,6 +265,23 @@ export function App() {
           activePage={activePage === 'verification' ? 'records' : activePage}
           onNavigate={(page) => handleNavigate(page)}
         />
+
+        {/* Prototype Storage Notice Banner */}
+        <aside
+          role="region"
+          aria-label="Prototype Storage Notice"
+          className="border-b border-amber-200 bg-amber-50/90 text-amber-950 px-4 py-2.5 sm:px-6 text-xs flex items-center justify-between gap-3 shadow-2xs"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" aria-hidden="true" />
+            <span className="px-2 py-0.5 rounded bg-amber-200/80 text-amber-900 font-bold uppercase tracking-wider text-[10px] shrink-0">
+              Prototype Sandbox
+            </span>
+            <p className="leading-snug text-amber-900">
+              <strong>Local Storage Only:</strong> Patient data is stored locally in the browser (unencrypted localStorage). This build is not intended for real patient data until backend persistence, authentication, and at-rest encryption are in place.
+            </p>
+          </div>
+        </aside>
 
         {/* Dynamic Page Router */}
         <main id="main-content" tabIndex={-1} className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto focus:outline-none">

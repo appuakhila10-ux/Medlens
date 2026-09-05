@@ -129,7 +129,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Privacy / Security Indicator */}
         <div className="px-2.5 py-1.5 flex items-center gap-2 text-[11px] text-slate-500">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" aria-hidden="true" />
-          <span className="truncate">HIPAA Protected UI • Source-Traceable</span>
+          <span className="truncate">Prototype Sandbox • Source-Traceable</span>
         </div>
 
         {/* User Profile */}

@@ -2,10 +2,14 @@
 
 [![Build & Test Status](https://img.shields.io/badge/Tests-33%20Passing%20(6%20Suites)-emerald.svg)](https://github.com/appuakhila10-ux/Medlens)
 [![Accessibility](https://img.shields.io/badge/Accessibility-WCAG%202.1%20Level%20AA-blue.svg)](https://github.com/appuakhila10-ux/Medlens)
-[![Security Hardened](https://img.shields.io/badge/Security-OWASP%20Hardened%20%26%20Rate%20Limited-indigo.svg)](https://github.com/appuakhila10-ux/Medlens)
+[![Security Controls](https://img.shields.io/badge/Security-Upload%20Validation%20%7C%20Rate%20Limited%20%7C%20Headers-indigo.svg)](https://github.com/appuakhila10-ux/Medlens)
 [![License](https://img.shields.io/badge/License-MIT-slate.svg)](https://github.com/appuakhila10-ux/Medlens)
 
-MedLens is an enterprise-grade clinical document intelligence and provenance tracking platform built with **React 18**, **TypeScript**, **Node.js/Express**, and **Anthropic's Claude 3.5 Sonnet**. It ingests unstructured laboratory diagnostics (PDF, JPG, PNG), extracts structured biomarker panels via OCR and LLM, detects cross-document inconsistencies, and supports human-in-the-loop verification with end-to-end clinical auditability.
+MedLens is a **Prototype / MVP** clinical document intelligence and provenance tracking platform built with **React 18**, **TypeScript**, **Node.js/Express**, and **Anthropic's Claude 3.5 Sonnet**. It ingests unstructured laboratory diagnostics (PDF, JPG, PNG), extracts structured biomarker panels via OCR and LLM, detects cross-document inconsistencies, and supports human-in-the-loop verification with clinical auditability.
+
+> [!WARNING]
+> **Prototype / Demonstration Sandbox Notice**:
+> Current data storage is unencrypted in-browser `localStorage` with no backend database persistence or user authentication yet. This build is an evaluation sandbox and clinical informatics proof-of-concept; it is **not** intended for real patient Protected Health Information (PHI) and carries **no** HIPAA or SOC-2 compliance certifications.
 
 ---
 
@@ -190,7 +194,9 @@ npm test
 
 ---
 
-## 🔒 Security Hardening & OWASP Top 10 Defenses
+## 🔒 Transport Security & Ingestion Defenses
+
+The backend service implements defensive transport headers, request rate limiting, and upload inspection controls:
 
 1. **Defensive HTTP Security Headers**:
    - `X-Content-Type-Options: nosniff` (prevents MIME sniffing).

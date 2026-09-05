@@ -106,4 +106,20 @@ describe('Backend Express API Endpoints & Transport Security', () => {
       assert.ok([200, 502, 503].includes(res.status));
     }
   });
+
+  it('error responses in production environment do not leak rawResponse', async () => {
+    const origEnv = process.env.NODE_ENV;
+    try {
+      process.env.NODE_ENV = 'production';
+      // Attempt extract with malformed/missing payload to verify structure
+      const res = await fetch(`${baseUrl}/api/extract`, {
+        method: 'POST',
+        body: new FormData()
+      });
+      const data = await res.json();
+      assert.strictEqual(data.rawResponse, undefined, 'rawResponse must not be leaked in production');
+    } finally {
+      process.env.NODE_ENV = origEnv;
+    }
+  });
 });

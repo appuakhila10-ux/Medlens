@@ -110,7 +110,7 @@ Source 2 (${src2Name}, ${src2Date}): ${JSON.stringify(src2Data, null, 2)}`;
       return res.status(502).json({
         error: 'LLM returned non-compliant JSON for clinical conflicts.',
         details: parseErr.message,
-        rawResponse: rawContent
+        ...(process.env.NODE_ENV === 'development' ? { rawResponse: rawContent } : {})
       });
     }
 

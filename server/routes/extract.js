@@ -232,7 +232,7 @@ router.post('/extract', upload.single('file'), async (req, res) => {
       return res.status(502).json({
         error: 'LLM returned malformed or non-compliant JSON.',
         details: jsonErr.message,
-        rawResponse: rawLlmOutput
+        ...(process.env.NODE_ENV === 'development' ? { rawResponse: rawLlmOutput } : {})
       });
     }
 
@@ -240,7 +240,7 @@ router.post('/extract', upload.single('file'), async (req, res) => {
       return res.status(502).json({
         error: 'Invalid extraction schema returned by LLM.',
         details: 'Missing or invalid "tests" array in the LLM response JSON.',
-        rawResponse: rawLlmOutput
+        ...(process.env.NODE_ENV === 'development' ? { rawResponse: rawLlmOutput } : {})
       });
     }
 
