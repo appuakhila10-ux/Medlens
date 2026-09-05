@@ -3,6 +3,30 @@
  * Runs an Express server on port 3001 for OCR and LLM clinical extraction.
  */
 
+// Automatically load .env file from project root or server/ if present
+const fs = require('fs');
+const path = require('path');
+[path.resolve(__dirname, '../.env'), path.resolve(__dirname, '.env')].forEach(envPath => {
+  if (fs.existsSync(envPath)) {
+    try {
+      const content = fs.readFileSync(envPath, 'utf8');
+      content.split(/\r?\n/).forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const [key, ...rest] = trimmed.split('=');
+          const val = rest.join('=').trim().replace(/^["']|["']$/g, '');
+          const envKey = key.trim();
+          if (!process.env[envKey]) {
+            process.env[envKey] = val;
+          }
+        }
+      });
+    } catch (e) {
+      console.warn(`[MedLens Server] Notice: Could not read ${envPath}: ${e.message}`);
+    }
+  }
+});
+
 const express = require('express');
 const cors = require('cors');
 const { securityHeaders, rateLimiterMiddleware } = require('./middleware/security');
