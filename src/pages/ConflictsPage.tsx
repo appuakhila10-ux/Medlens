@@ -3,6 +3,7 @@ import { ClinicalConflict } from '../types/clinical';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { SafetyBanner } from '../components/common/SafetyBanner';
 import { Modal } from '../components/common/Modal';
 import {
   AlertTriangle,
@@ -41,6 +42,9 @@ export const ConflictsPage: React.FC<ConflictsPageProps> = ({ onSelectPatient })
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Universal Clinical Safety Banner */}
+      <SafetyBanner />
+
       {/* Header */}
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Clinical Inconsistency Detection</h2>

@@ -3,6 +3,7 @@ import { TimelineEvent, Patient } from '../types/clinical';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { SafetyBanner } from '../components/common/SafetyBanner';
 import {
   Clock,
   FileUp,
@@ -61,7 +62,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
       case 'report_verified':
         return 'Report Verified';
       case 'ai_summary_generated':
-        return 'AI Summary Generated';
+        return 'AI Summary Synthesized';
       case 'record_edited':
         return 'Record Edited';
       case 'patient_updated':
@@ -71,6 +72,9 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Universal Clinical Safety Banner */}
+      <SafetyBanner />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

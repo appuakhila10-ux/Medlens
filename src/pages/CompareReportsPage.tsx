@@ -3,6 +3,7 @@ import { Patient, ComparisonItem, MedicalReport } from '../types/clinical';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { SafetyBanner } from '../components/common/SafetyBanner';
 import {
   GitCompare,
   ArrowRight,
@@ -65,6 +66,9 @@ export const CompareReportsPage: React.FC<CompareReportsPageProps> = ({
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Universal Clinical Safety Banner */}
+      <SafetyBanner />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
