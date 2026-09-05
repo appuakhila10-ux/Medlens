@@ -1,8 +1,10 @@
-import { Patient, MedicalTest, MedicalReport } from '../types/clinical';
+import { Patient, MedicalTest, MedicalReport, ClinicalConflict } from '../types/clinical';
+import { MOCK_CONFLICTS } from '../data/mockData';
 
 const PATIENTS_STORAGE_KEY = 'medlens_patients_v1';
 const TESTS_STORAGE_KEY = 'medlens_medical_tests_v1';
 const REPORTS_STORAGE_KEY = 'medlens_reports_v1';
+const CONFLICTS_STORAGE_KEY = 'medlens_conflicts_v1';
 
 export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
   {
@@ -581,4 +583,65 @@ export function createStoredMedicalTests(newTests: MedicalTest[]): void {
   const existing = getStoredMedicalTests();
   const updated = [...newTests, ...existing];
   saveStoredMedicalTests(updated);
+}
+
+// ---------------- Clinical Conflicts Storage ----------------
+export function getStoredConflicts(): ClinicalConflict[] {
+  try {
+    const raw = localStorage.getItem(CONFLICTS_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(CONFLICTS_STORAGE_KEY, JSON.stringify(MOCK_CONFLICTS));
+      return MOCK_CONFLICTS;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : MOCK_CONFLICTS;
+  } catch (err) {
+    console.error("Failed to read clinical conflicts from localStorage:", err);
+    return MOCK_CONFLICTS;
+  }
+}
+
+export function saveStoredConflicts(conflicts: ClinicalConflict[]): void {
+  try {
+    localStorage.setItem(CONFLICTS_STORAGE_KEY, JSON.stringify(conflicts));
+  } catch (err) {
+    console.error("Failed to save clinical conflicts to localStorage:", err);
+  }
+}
+
+export function getStoredConflictsByPatient(patientId: string): ClinicalConflict[] {
+  const all = getStoredConflicts();
+  return all.filter(c => c.patientId === patientId);
+}
+
+export function createStoredConflict(conflict: ClinicalConflict): void {
+  const existing = getStoredConflicts();
+  // Avoid duplicate active conflict with identical title and patient
+  const isDuplicate = existing.some(
+    c => c.patientId === conflict.patientId && c.title === conflict.title && c.status === 'active'
+  );
+  if (isDuplicate) return;
+
+  const updated = [conflict, ...existing];
+  saveStoredConflicts(updated);
+
+  // Update patient active conflict count
+  const activeCount = updated.filter(c => c.patientId === conflict.patientId && c.status === 'active').length;
+  updateStoredPatient(conflict.patientId, { conflictCount: activeCount });
+}
+
+export function updateStoredConflict(id: string, updates: Partial<ClinicalConflict>): ClinicalConflict | null {
+  const all = getStoredConflicts();
+  const idx = all.findIndex(c => c.id === id);
+  if (idx === -1) return null;
+
+  const updatedConflict: ClinicalConflict = { ...all[idx], ...updates };
+  all[idx] = updatedConflict;
+  saveStoredConflicts(all);
+
+  // Update patient active conflict count
+  const activeCount = all.filter(c => c.patientId === updatedConflict.patientId && c.status === 'active').length;
+  updateStoredPatient(updatedConflict.patientId, { conflictCount: activeCount });
+
+  return updatedConflict;
 }

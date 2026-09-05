@@ -14,7 +14,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AddPatientModal } from './components/modals/AddPatientModal';
 import { EditPatientModal } from './components/modals/EditPatientModal';
 import { DeleteConfirmationModal } from './components/modals/DeleteConfirmationModal';
-import { Patient, MedicalReport, MedicalTest } from './types/clinical';
+import { Patient, MedicalReport, MedicalTest, ClinicalConflict } from './types/clinical';
 import { ExtractedReportBundle } from './utils/extractor';
 import {
   getStoredPatients,
@@ -25,15 +25,19 @@ import {
   createStoredReport,
   getStoredMedicalTests,
   createStoredMedicalTests,
+  getStoredConflicts,
+  createStoredConflict,
   getCurrentTimestamp
 } from './utils/storage';
 import { generatePatientAISummary } from './utils/aiSummary';
+import { detectClinicalConflicts } from './utils/conflictDetector';
 import { CheckCircle2, ShieldAlert, Sparkles, X } from 'lucide-react';
 
 export function App() {
   const [activePage, setActivePage] = useState<NavPage | 'verification'>('dashboard');
   const [selectedPatientId, setSelectedPatientId] = useState<string>('ML-1042');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [conflicts, setConflicts] = useState<ClinicalConflict[]>(() => getStoredConflicts());
 
   // Modals state
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
@@ -170,9 +174,29 @@ export function App() {
 
     setActiveExtractedBundle(null);
     setSelectedPatientId(targetPatientId);
-    showToast(`Medical report "${reportData.fileName}" and ${newTests.length} tests verified & saved to patient record.`);
     setActivePage('records');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Asynchronous Inconsistency Cross-Reference Detection using strict clinical rules
+    if (targetPatient) {
+      detectClinicalConflicts(targetPatient, newReport, newTests)
+        .then((detected) => {
+          if (detected.length > 0) {
+            detected.forEach(c => createStoredConflict(c));
+            setConflicts(getStoredConflicts());
+            setPatients(getStoredPatients());
+            showToast(`Medical report verified. ${detected.length} potential clinical inconsistency flagged for review.`);
+          } else {
+            showToast(`Medical report "${reportData.fileName}" and ${newTests.length} tests verified & saved to patient record.`);
+          }
+        })
+        .catch((err) => {
+          console.warn('[MedLens Inconsistency Detection] Cross-reference failed:', err);
+          showToast(`Medical report "${reportData.fileName}" and ${newTests.length} tests verified & saved to patient record.`);
+        });
+    } else {
+      showToast(`Medical report "${reportData.fileName}" and ${newTests.length} tests verified & saved to patient record.`);
+    }
   };
 
   const [isRegeneratingSummary, setIsRegeneratingSummary] = useState(false);
@@ -203,7 +227,7 @@ export function App() {
 
   const currentPatient = patients.find(p => p.id === selectedPatientId) || patients[0];
   const pendingCount = reports.filter(r => r.verificationStatus === 'pending').length;
-  const conflictCount = patients.reduce((acc, p) => acc + (p.conflictCount || 0), 0);
+  const conflictCount = conflicts.filter(c => c.status === 'active').length;
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-800">
@@ -319,6 +343,11 @@ export function App() {
           {activePage === 'conflicts' && (
             <ConflictsPage
               onSelectPatient={handleSelectPatient}
+              conflicts={conflicts}
+              onRefreshConflicts={() => {
+                setConflicts(getStoredConflicts());
+                setPatients(getStoredPatients());
+              }}
             />
           )}
 

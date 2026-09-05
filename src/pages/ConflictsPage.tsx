@@ -15,27 +15,37 @@ import {
   Sparkles,
   Search
 } from 'lucide-react';
-import { MOCK_CONFLICTS } from '../data/mockData';
+import { getStoredConflicts, updateStoredConflict } from '../utils/storage';
 
 interface ConflictsPageProps {
   onSelectPatient: (patientId: string) => void;
+  conflicts?: ClinicalConflict[];
+  onRefreshConflicts?: () => void;
 }
 
-export const ConflictsPage: React.FC<ConflictsPageProps> = ({ onSelectPatient }) => {
-  const [conflicts, setConflicts] = useState<ClinicalConflict[]>(MOCK_CONFLICTS);
+export const ConflictsPage: React.FC<ConflictsPageProps> = ({
+  onSelectPatient,
+  conflicts: propConflicts,
+  onRefreshConflicts
+}) => {
+  const [localConflicts, setLocalConflicts] = useState<ClinicalConflict[]>(() => getStoredConflicts());
+  const conflicts = propConflicts || localConflicts;
+
   const [activeReviewConflict, setActiveReviewConflict] = useState<ClinicalConflict | null>(null);
   const [resolutionNote, setResolutionNote] = useState('');
   const [selectedResolution, setSelectedResolution] = useState<'source1' | 'source2' | 'manual'>('manual');
 
   const handleResolve = () => {
     if (!activeReviewConflict) return;
-    setConflicts(prev =>
-      prev.map(c =>
-        c.id === activeReviewConflict.id
-          ? { ...c, status: 'resolved', resolutionNotes: resolutionNote || 'Clinical review completed by attending physician.' }
-          : c
-      )
-    );
+    const note = resolutionNote || 'Clinical review completed by attending clinician.';
+    updateStoredConflict(activeReviewConflict.id, {
+      status: 'resolved',
+      resolutionNotes: note
+    });
+    setLocalConflicts(getStoredConflicts());
+    if (onRefreshConflicts) {
+      onRefreshConflicts();
+    }
     setActiveReviewConflict(null);
     setResolutionNote('');
   };
@@ -68,7 +78,18 @@ export const ConflictsPage: React.FC<ConflictsPageProps> = ({ onSelectPatient })
 
       {/* Conflicts List */}
       <div className="space-y-4">
-        {conflicts.map((conflict) => (
+        {conflicts.length === 0 ? (
+          <Card className="p-12 text-center bg-white border border-slate-200">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800">No Clinical Inconsistencies Detected</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+              All multi-document cross-references are concordant across verified patient records. When a new medical report is verified, MedLens automatically cross-references reported allergies, medications, and demographics.
+            </p>
+          </Card>
+        ) : (
+          conflicts.map((conflict) => (
           <Card key={conflict.id} noPadding className="overflow-hidden">
             {/* Conflict Card Header */}
             <div className="px-6 py-4 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
@@ -160,7 +181,7 @@ export const ConflictsPage: React.FC<ConflictsPageProps> = ({ onSelectPatient })
               )}
             </div>
           </Card>
-        ))}
+        )))}
       </div>
 
       {/* Review Modal */}
