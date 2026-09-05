@@ -1,10 +1,11 @@
-﻿/**
+/**
  * Express Route: POST /api/conflicts
  * Cross-references newly uploaded clinical records against existing patient records
  * using Claude LLM and strict factual inconsistency detection rules.
  */
 
 const express = require('express');
+const { sanitizeInput } = require('../middleware/security');
 const router = express.Router();
 
 const CLINICAL_CONFLICT_SYSTEM_PROMPT = `You compare two sets of patient-reported clinical data (allergies, medications, 
@@ -39,11 +40,11 @@ router.post('/conflicts', async (req, res) => {
     let src1Date = source1?.date || patient?.updatedAt || patient?.createdAt || 'Documented Intake';
     let src1Data = source1?.data || {
       demographics: { name: patient?.name, age: patient?.age, sex: patient?.sex, dob: patient?.dob },
-      allergies: patient?.allergies || [],
-      medications: patient?.medications || [],
-      conditions: patient?.conditions || [],
-      symptoms: patient?.symptoms || [],
-      notes: patient?.notes || ''
+      allergies: (patient?.allergies || []).map(a => sanitizeInput(a)),
+      medications: (patient?.medications || []).map(m => sanitizeInput(m)),
+      conditions: (patient?.conditions || []).map(c => sanitizeInput(c)),
+      symptoms: (patient?.symptoms || []).map(s => sanitizeInput(s)),
+      notes: sanitizeInput(patient?.notes || '')
     };
 
     let src2Name = source2?.name || report?.fileName || report?.reportType || 'Uploaded Medical Report';
@@ -51,7 +52,7 @@ router.post('/conflicts', async (req, res) => {
     let src2Data = source2?.data || {
       reportType: report?.reportType,
       sourceFacility: report?.sourceFacility,
-      documentText: report?.extractedText || '',
+      documentText: sanitizeInput(report?.extractedText || ''),
       tests: (tests || []).map(t => ({
         testName: t.testName,
         value: t.value,

@@ -207,10 +207,15 @@ router.post('/extract', upload.single('file'), async (req, res) => {
       });
     }
 
-    // Step 3: Send extracted text to Claude's API using clinical prompt
+    // Step 3: Input Sanitization — Neutralize dangerous script tags and HTML injections in OCR extracts
+    const sanitizedOcrText = rawExtractedText
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/javascript:/gi, 'blocked:');
+
+    // Step 4: Send sanitized text to Claude's API using clinical prompt
     let rawLlmOutput = '';
     try {
-      rawLlmOutput = await callClaudeClinicalExtraction(rawExtractedText);
+      rawLlmOutput = await callClaudeClinicalExtraction(sanitizedOcrText);
     } catch (llmErr) {
       return res.status(502).json({
         error: 'Clinical LLM extraction failed.',

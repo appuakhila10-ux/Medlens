@@ -1,4 +1,5 @@
-﻿const express = require('express');
+const express = require('express');
+const { sanitizeInput } = require('../middleware/security');
 const router = express.Router();
 
 const CLINICAL_SUMMARIZER_SYSTEM_PROMPT = `You are a clinical information summarizer, NOT a diagnostician. You write 
@@ -22,8 +23,8 @@ router.post('/summarize', async (req, res) => {
   try {
     const { patient, tests, reports, name, id, patientTestsJson, patientReportsJson } = req.body || {};
 
-    const patientName = patient?.name || name || 'Patient';
-    const patientId = patient?.id || id || 'Unknown ID';
+    const patientName = sanitizeInput(patient?.name || name || 'Patient');
+    const patientId = sanitizeInput(patient?.id || id || 'Unknown ID');
 
     let testsPayload;
     if (typeof patientTestsJson === 'string') {

@@ -19,8 +19,14 @@ app.disable('x-powered-by');
 // Apply Defensive Security Headers
 app.use(securityHeaders);
 
-// Apply Rate Limiter to protect AI / OCR endpoints
+// Apply General Rate Limiter to protect all API endpoints
 app.use('/api', rateLimiterMiddleware({ limit: 60, windowMs: 60000 }));
+
+// Apply Specialized Sliding-Window Rate Limiter for compute-heavy AI & OCR endpoints
+const aiEndpointLimiter = rateLimiterMiddleware({ limit: 30, windowMs: 60000 });
+app.use('/api/extract', aiEndpointLimiter);
+app.use('/api/summarize', aiEndpointLimiter);
+app.use('/api/conflicts', aiEndpointLimiter);
 
 // Enable CORS for development frontend on port 5173
 app.use(cors({

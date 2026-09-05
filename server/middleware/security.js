@@ -10,11 +10,18 @@
 
 const path = require('path');
 
-// 1. Path traversal neutralization
+// 1. Path traversal neutralization, null-byte stripping, and character restriction
 function sanitizeFilename(filename) {
   if (typeof filename !== 'string') return 'unnamed_file';
-  const base = path.basename(filename);
-  return base.replace(/[^a-zA-Z0-9._-]/g, '_');
+  // Strip null bytes and ASCII control characters (0x00 - 0x1F, 0x7F)
+  let clean = filename.replace(/\0/g, '').replace(/[\x00-\x1F\x7F]/g, '');
+  // Normalize backslashes to forward slashes for cross-platform compatibility
+  clean = clean.replace(/\\/g, '/');
+  // Strip directory path traversal sequences (e.g. ../, ..\)
+  const base = path.basename(clean);
+  // Restrict to safe characters: alphanumeric, dots, underscores, hyphens
+  const sanitized = base.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return sanitized || 'unnamed_file';
 }
 
 // 2. Extension whitelisting
@@ -51,7 +58,7 @@ function validateMagicBytes(buffer, filename) {
   return false;
 }
 
-// 4. Input sanitization for XSS prevention
+// 4. Input sanitization for XSS prevention (escapes HTML tags, scripts, pseudo-protocols)
 function sanitizeInput(str) {
   if (typeof str !== 'string') return '';
   return str
@@ -59,7 +66,9 @@ function sanitizeInput(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+    .replace(/'/g, '&#x27;')
+    .replace(/javascript:/gi, 'blocked:')
+    .replace(/data:/gi, 'blocked:');
 }
 
 // 5. In-Memory Sliding-Window Rate Limiter
