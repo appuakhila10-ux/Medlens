@@ -33,7 +33,8 @@ import {
   FileCheck,
   CheckCircle2,
   Lock,
-  Database
+  Database,
+  Printer
 } from 'lucide-react';
 import { NavPage } from '../components/layout/Sidebar';
 
@@ -140,6 +141,17 @@ export const PatientRecordPage: React.FC<PatientRecordPageProps> = ({
               ))}
             </select>
           </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<Printer className="w-3.5 h-3.5 text-slate-600" />}
+            onClick={() => window.print()}
+            className="hover:border-slate-400 text-slate-700"
+            title="Print or export clinical chart to PDF"
+          >
+            Print / Export PDF
+          </Button>
 
           <Button
             variant="outline"

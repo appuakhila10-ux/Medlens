@@ -241,22 +241,25 @@ export const UploadReportPage: React.FC<UploadReportPageProps> = ({
 
           {/* Quick Demo Pre-Loaders */}
           <div className="mt-6 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="text-slate-400 font-medium">Test with sample diagnostic report:</span>
+            <span className="text-slate-600 font-medium">Test with sample diagnostic report:</span>
             <button
+              type="button"
               onClick={() => handleLoadSample('cbc')}
-              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer font-medium shadow-2xs transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer font-medium shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               📄 Sample CBC Report (PDF)
             </button>
             <button
+              type="button"
               onClick={() => handleLoadSample('metabolic')}
-              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer font-medium shadow-2xs transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer font-medium shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               🖼️ Sample Metabolic Panel (PNG)
             </button>
             <button
+              type="button"
               onClick={() => handleLoadSample('thyroid')}
-              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer font-medium shadow-2xs transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer font-medium shadow-2xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               📸 Sample Thyroid Panel (JPG)
             </button>
