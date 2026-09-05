@@ -22,14 +22,10 @@ function formatDisplayDate(dateStr?: string): string {
 
 /**
  * Generates an objective, patient-friendly clinical information summary based
- * strictly on structured verified records.
- *
- * Safety Constraints:
- * - NO disease diagnosis or predictions.
- * - NO treatment or medication dosage recommendations.
- * - Reference ranges sourced strictly from original reports; missing reference ranges are explicitly noted.
+ * strictly on structured verified records using deterministic clinical templates.
+ * Used as the primary reliable fallback if LLM synthesis is offline or unavailable.
  */
-export function generatePatientAISummary(
+export function generateTemplatePatientAISummary(
   patient: Patient,
   tests: MedicalTest[] = [],
   reports: MedicalReport[] = []
@@ -142,4 +138,187 @@ export function generatePatientAISummary(
   );
 
   return sentences.join(' ');
+}
+
+/**
+ * Reactive Loading State for Clinical AI Summarization
+ */
+export let isAISummaryLoading = false;
+const loadingSubscribers = new Set<(loading: boolean) => void>();
+
+export function isSummaryGenerating(): boolean {
+  return isAISummaryLoading;
+}
+
+export function subscribeToSummaryLoading(cb: (loading: boolean) => void): () => void {
+  loadingSubscribers.add(cb);
+  return () => loadingSubscribers.delete(cb);
+}
+
+function setSummaryLoadingState(loading: boolean) {
+  isAISummaryLoading = loading;
+  loadingSubscribers.forEach(cb => {
+    try { cb(loading); } catch { /* ignore subscriber error */ }
+  });
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('medlens:summary-loading', { detail: { loading } }));
+  }
+}
+
+const MANDATORY_CLOSING_SENTENCE =
+  'This summary organizes reported values and does not provide a diagnosis or medical recommendation.';
+
+/**
+ * Generates an objective, patient-friendly clinical information summary based
+ * strictly on structured verified records.
+ *
+ * Calls Claude LLM via the backend API endpoint (/api/summarize) passing the
+ * patient's verified tests and reports as JSON.
+ *
+ * Preserves the exact function signature and return type (string) so App.tsx's
+ * handleRegenerateAISummary doesn't need changes.
+ *
+ * Implements a loading state and an error fallback that returns the template-based
+ * summary if the API call fails or times out.
+ */
+export function generatePatientAISummary(
+  patient: Patient,
+  tests: MedicalTest[] = [],
+  reports: MedicalReport[] = []
+): string {
+  const patientTests = tests.filter(t => t.patientId === patient.id);
+  const patientReports = reports.filter(r => r.patientId === patient.id);
+
+  if (patientTests.length === 0) {
+    return generateTemplatePatientAISummary(patient, tests, reports);
+  }
+
+  // Attempt live LLM synthesis via backend endpoint
+  if (typeof XMLHttpRequest !== 'undefined') {
+    try {
+      setSummaryLoadingState(true);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/summarize', false); // Synchronous to maintain identical return type
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.timeout = 10000;
+
+      const payload = {
+        name: patient.name,
+        id: patient.id,
+        patient: { name: patient.name, id: patient.id },
+        tests: patientTests,
+        reports: patientReports,
+        patientTestsJson: JSON.stringify(
+          patientTests.map(t => ({
+            testName: t.testName,
+            value: t.value,
+            unit: t.unit,
+            referenceRange: t.referenceRange || 'Reference range unavailable',
+            status: t.status,
+            date: t.date,
+            observation: t.observation || undefined
+          }))
+        ),
+        patientReportsJson: JSON.stringify(
+          patientReports.map(r => ({
+            fileName: r.fileName || r.reportName || 'Medical Report',
+            reportType: r.reportType || 'Clinical Laboratory',
+            reportDate: r.reportDate || r.date || r.uploadDate,
+            sourceFacility: r.sourceFacility || 'Pathology Laboratory'
+          }))
+        )
+      };
+
+      xhr.send(JSON.stringify(payload));
+
+      if (xhr.status === 200) {
+        const data = JSON.parse(xhr.responseText);
+        if (data && typeof data.summary === 'string' && data.summary.trim().length > 0) {
+          let summary = data.summary.trim();
+          if (!summary.includes(MANDATORY_CLOSING_SENTENCE)) {
+            summary = `${summary} ${MANDATORY_CLOSING_SENTENCE}`;
+          }
+          return summary;
+        }
+      } else {
+        console.warn(`[MedLens AI Summary] Backend returned status ${xhr.status}. Falling back to template summary.`);
+      }
+    } catch (apiError) {
+      console.warn('[MedLens AI Summary] Live LLM call failed, falling back to clinical template:', apiError);
+    } finally {
+      setSummaryLoadingState(false);
+    }
+  }
+
+  // Fallback: Return template-based summary
+  return generateTemplatePatientAISummary(patient, tests, reports);
+}
+
+/**
+ * Asynchronous variant for callers that prefer a Promise-based workflow.
+ * Gracefully falls back to template summary on any network or LLM error.
+ */
+export async function generatePatientAISummaryAsync(
+  patient: Patient,
+  tests: MedicalTest[] = [],
+  reports: MedicalReport[] = []
+): Promise<string> {
+  const patientTests = tests.filter(t => t.patientId === patient.id);
+  const patientReports = reports.filter(r => r.patientId === patient.id);
+
+  if (patientTests.length === 0) {
+    return generateTemplatePatientAISummary(patient, tests, reports);
+  }
+
+  setSummaryLoadingState(true);
+  try {
+    const response = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: patient.name,
+        id: patient.id,
+        patient: { name: patient.name, id: patient.id },
+        tests: patientTests,
+        reports: patientReports,
+        patientTestsJson: JSON.stringify(
+          patientTests.map(t => ({
+            testName: t.testName,
+            value: t.value,
+            unit: t.unit,
+            referenceRange: t.referenceRange || 'Reference range unavailable',
+            status: t.status,
+            date: t.date,
+            observation: t.observation || undefined
+          }))
+        ),
+        patientReportsJson: JSON.stringify(
+          patientReports.map(r => ({
+            fileName: r.fileName || r.reportName || 'Medical Report',
+            reportType: r.reportType || 'Clinical Laboratory',
+            reportDate: r.reportDate || r.date || r.uploadDate,
+            sourceFacility: r.sourceFacility || 'Pathology Laboratory'
+          }))
+        )
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.summary) {
+        let summary = data.summary.trim();
+        if (!summary.includes(MANDATORY_CLOSING_SENTENCE)) {
+          summary = `${summary} ${MANDATORY_CLOSING_SENTENCE}`;
+        }
+        return summary;
+      }
+    }
+  } catch (err) {
+    console.warn('[MedLens AI Summary Async] LLM call failed, falling back to clinical template:', err);
+  } finally {
+    setSummaryLoadingState(false);
+  }
+
+  return generateTemplatePatientAISummary(patient, tests, reports);
 }

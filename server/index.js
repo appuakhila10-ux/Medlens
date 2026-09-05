@@ -6,6 +6,7 @@
 const express = require('express');
 const cors = require('cors');
 const extractRouter = require('./routes/extract');
+const summarizeRouter = require('./routes/summarize');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -20,8 +21,9 @@ app.use(cors({
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Mount Extraction Endpoint
+// Mount Endpoints
 app.use('/api', extractRouter);
+app.use('/api', summarizeRouter);
 
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {
