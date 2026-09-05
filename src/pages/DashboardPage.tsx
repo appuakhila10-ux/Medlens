@@ -5,6 +5,7 @@ import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { Patient, MedicalReport } from '../types/clinical';
 import { NavPage } from '../components/layout/Sidebar';
+import { SafetyBanner } from '../components/common/SafetyBanner';
 import {
   Users,
   FileCheck,
@@ -44,6 +45,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Universal Clinical Safety Banner */}
+      <SafetyBanner />
+
       {/* Top Banner / Welcome */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-linear-to-r from-blue-900 via-clinical-800 to-teal-800 rounded-2xl p-6 text-white shadow-md">
         <div className="space-y-1.5">

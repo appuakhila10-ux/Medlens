@@ -1,4 +1,10 @@
-export type ProvenanceType = 'user_provided' | 'extracted_from_report' | 'ai_generated';
+export type ProvenanceType =
+  | 'USER_PROVIDED'
+  | 'user_provided'
+  | 'REPORT_EXTRACTED'
+  | 'extracted_from_report'
+  | 'AI_GENERATED'
+  | 'ai_generated';
 
 export type LabStatus = 'normal' | 'low' | 'high' | 'unavailable';
 
@@ -18,7 +24,7 @@ export interface MedicalTest {
   status: MedicalTestStatus;
   date: string;
   observation?: string;
-  source?: string;
+  source: string; // e.g. "Extracted from report" or "User provided"
   confidence?: number;
   verified?: boolean;
 }
@@ -44,6 +50,14 @@ export interface MedicalReport {
   extractionConfidence?: number;
 }
 
+export interface PatientAISummary {
+  text: string;
+  generatedAt: string;
+  recordsAnalyzedCount: number;
+  isAvailable?: boolean;
+  disclaimer: string;
+}
+
 export interface Patient {
   id: string; // e.g. "ML-1042"
   name: string;
@@ -64,12 +78,7 @@ export interface Patient {
   verificationStatus?: VerificationStatus;
   reportCount?: number;
   conflictCount?: number;
-  aiSummary?: {
-    text: string;
-    generatedAt: string;
-    recordsAnalyzedCount: number;
-    disclaimer: string;
-  };
+  aiSummary?: PatientAISummary;
 }
 
 export interface LabResult {
@@ -84,7 +93,7 @@ export interface LabResult {
   sourceDocument: string;
   sourceDate: string;
   category: 'Hematology' | 'Metabolic' | 'Lipid' | 'Thyroid' | 'Urinalysis' | 'Other';
-  verificationStatus?: VerificationStatus;
+  verificationStatus: VerificationStatus;
   confidence: number;
 }
 
@@ -134,6 +143,6 @@ export interface TimelineEvent {
   eventType: 'patient_updated' | 'report_uploaded' | 'report_verified' | 'ai_summary_generated' | 'record_edited';
   title: string;
   description: string;
-  source?: string;
+  source: string;
   actor: string;
 }

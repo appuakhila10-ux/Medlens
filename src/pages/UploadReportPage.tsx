@@ -4,6 +4,8 @@ import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { ProvenanceBadge } from '../components/common/ProvenanceBadge';
 import { Patient, MedicalTest } from '../types/clinical';
+import { SafetyBanner } from '../components/common/SafetyBanner';
+import { ConfidenceBadge } from '../components/common/ConfidenceBadge';
 import {
   ExtractedReportBundle,
   SAMPLE_EXTRACTED_TEMPLATES,
@@ -170,6 +172,9 @@ export const UploadReportPage: React.FC<UploadReportPageProps> = ({
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
+      {/* Universal Clinical Safety Banner */}
+      <SafetyBanner />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -369,6 +374,7 @@ export const UploadReportPage: React.FC<UploadReportPageProps> = ({
                       <th className="px-4 py-2.5">Unit</th>
                       <th className="px-4 py-2.5">Reference Range (source report)</th>
                       <th className="px-4 py-2.5">Status</th>
+                      <th className="px-4 py-2.5">Confidence</th>
                       <th className="px-4 py-2.5">Provenance</th>
                     </tr>
                   </thead>
@@ -400,6 +406,12 @@ export const UploadReportPage: React.FC<UploadReportPageProps> = ({
                             }
                             label={test.status}
                             size="sm"
+                          />
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <ConfidenceBadge
+                            confidence={test.confidence}
+                            size="xs"
                           />
                         </td>
                         <td className="px-4 py-2.5">

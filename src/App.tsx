@@ -24,8 +24,10 @@ import {
   getStoredReports,
   createStoredReport,
   getStoredMedicalTests,
-  createStoredMedicalTests
+  createStoredMedicalTests,
+  getCurrentTimestamp
 } from './utils/storage';
+import { generatePatientAISummary } from './utils/aiSummary';
 import { CheckCircle2, ShieldAlert, Sparkles, X } from 'lucide-react';
 
 export function App() {
@@ -145,6 +147,22 @@ export function App() {
     createStoredReport(newReport);
     createStoredMedicalTests(newTests);
 
+    // Automatically generate updated non-diagnostic AI summary from verified records
+    const allStoredTests = getStoredMedicalTests();
+    const allStoredReports = getStoredReports();
+    const targetPatient = getStoredPatients().find(p => p.id === targetPatientId);
+    if (targetPatient) {
+      const summaryText = generatePatientAISummary(targetPatient, allStoredTests, allStoredReports);
+      updateStoredPatient(targetPatientId, {
+        aiSummary: {
+          text: summaryText,
+          generatedAt: getCurrentTimestamp(),
+          recordsAnalyzedCount: allStoredTests.filter(t => t.patientId === targetPatientId).length,
+          disclaimer: "MedLens summarizes and organizes reported information. It does not provide medical advice, diagnosis, or treatment recommendations. Always consult a qualified healthcare professional."
+        }
+      });
+    }
+
     // Refresh state from storage
     setReports(getStoredReports());
     setMedicalTests(getStoredMedicalTests());
@@ -155,6 +173,32 @@ export function App() {
     showToast(`Medical report "${reportData.fileName}" and ${newTests.length} tests verified & saved to patient record.`);
     setActivePage('records');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const [isRegeneratingSummary, setIsRegeneratingSummary] = useState(false);
+
+  // Workflow: Manually regenerate AI summary
+  const handleRegenerateAISummary = async (patientId: string) => {
+    setIsRegeneratingSummary(true);
+    try {
+      const targetPatient = patients.find(p => p.id === patientId);
+      if (!targetPatient) return;
+      const summaryText = generatePatientAISummary(targetPatient, medicalTests, reports);
+      const updated = updateStoredPatient(patientId, {
+        aiSummary: {
+          text: summaryText,
+          generatedAt: getCurrentTimestamp(),
+          recordsAnalyzedCount: medicalTests.filter(t => t.patientId === patientId).length,
+          disclaimer: "MedLens summarizes and organizes reported information. It does not provide medical advice, diagnosis, or treatment recommendations. Always consult a qualified healthcare professional."
+        }
+      });
+      if (updated) {
+        setPatients(getStoredPatients());
+        showToast(`AI Summary regenerated for ${targetPatient.name}.`);
+      }
+    } finally {
+      setIsRegeneratingSummary(false);
+    }
   };
 
   const currentPatient = patients.find(p => p.id === selectedPatientId) || patients[0];
@@ -232,6 +276,8 @@ export function App() {
                 onNavigate={(page, pid) => handleNavigate(page, pid)}
                 onOpenEditPatient={(p) => setEditingPatient(p)}
                 onOpenDeletePatient={(p) => setDeletingPatient(p)}
+                onRegenerateSummary={handleRegenerateAISummary}
+                isRegeneratingSummary={isRegeneratingSummary}
               />
             </div>
           )}

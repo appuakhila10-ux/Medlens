@@ -5,6 +5,8 @@ import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { ProvenanceBadge } from '../components/common/ProvenanceBadge';
+import { ConfidenceBadge } from '../components/common/ConfidenceBadge';
+import { SafetyBanner } from '../components/common/SafetyBanner';
 import { Modal } from '../components/common/Modal';
 import {
   CheckCircle2,
@@ -214,6 +216,9 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
+      {/* Universal Clinical Safety Banner */}
+      <SafetyBanner />
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -352,10 +357,11 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
 
                     {/* Extraction Confidence & Observation */}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                      <div className="inline-flex items-center gap-1 font-semibold text-slate-700">
-                        <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                        <span>Extraction confidence: {Math.round(item.confidence * 100)}%</span>
-                      </div>
+                      <ConfidenceBadge
+                        confidence={item.confidence}
+                        showWarning={true}
+                        size="xs"
+                      />
                       {item.observation && (
                         <>
                           <span className="text-slate-300">•</span>

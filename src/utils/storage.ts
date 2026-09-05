@@ -39,10 +39,10 @@ export const DEFAULT_INITIAL_PATIENTS: Patient[] = [
     reportCount: 2,
     conflictCount: 1,
     aiSummary: {
-      text: "Records reflect an established history of hypertension and type 2 diabetes managed with oral pharmacotherapy. Recent laboratory data exhibits mild microcytic red blood cell indices and low serum ferritin in comparison to previous panels. Renal metabolic parameters remain documented within source report reference boundaries. An allergy discrepancy exists between the outpatient intake record and recent requisition form requiring staff verification.",
+      text: "The 2 uploaded medical reports contain 8 recorded laboratory tests from August 26, 2026. Fasting Blood Glucose is recorded as 138 mg/dL, which is above the source report's reference range of 70 – 99 mg/dL. Hemoglobin is recorded as 10.2 g/dL, which is below the source report's reference range of 12.0 – 16.0 g/dL. Hematocrit is recorded as 31.4%, which is below the source report's reference range of 37.0 – 48.0%. Serum Ferritin is recorded as 14 ng/mL, which is below the source report's reference range of 15 – 150 ng/mL. White Blood Cells (WBC), Platelets, and Serum Creatinine were recorded within their respective reference ranges. Reference range was not provided in the source report for RBC Morphology Index. Recorded observations note: Hemoglobin: Microcytic presentation on peripheral smear; Hematocrit: Red cell mass reduced. This summary organizes reported values and does not provide a diagnosis or medical recommendation.",
       generatedAt: "2026-08-26 14:15",
-      recordsAnalyzedCount: 4,
-      disclaimer: "This summary organizes available medical information and is not a medical diagnosis or treatment recommendation."
+      recordsAnalyzedCount: 8,
+      disclaimer: "MedLens summarizes and organizes reported information. It does not provide medical advice, diagnosis, or treatment recommendations. Always consult a qualified healthcare professional."
     }
   },
   {
@@ -355,7 +355,7 @@ export const DEFAULT_INITIAL_TESTS: MedicalTest[] = [
     date: "2026-08-26",
     observation: "Low circulating storage iron",
     source: "Extracted from report",
-    confidence: 0.94,
+    confidence: 0.84,
     verified: true
   },
   {
@@ -370,7 +370,7 @@ export const DEFAULT_INITIAL_TESTS: MedicalTest[] = [
     date: "2026-08-26",
     observation: "Reference range unavailable in source document",
     source: "Extracted from report",
-    confidence: 0.91,
+    confidence: 0.65,
     verified: true
   },
   // Marcus Chen (ML-1043)
