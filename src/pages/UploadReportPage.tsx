@@ -77,7 +77,7 @@ export const UploadReportPage: React.FC<UploadReportPageProps> = ({
     { id: 'verification', label: '6. Human Verification' },
   ];
 
-  const validateAndProcessFile = (file: File) => {
+  const validateAndProcessFile = async (file: File) => {
     setErrorMessage(null);
 
     // 1. File Type Validation (.pdf, .jpg, .jpeg, .png)
@@ -97,43 +97,42 @@ export const UploadReportPage: React.FC<UploadReportPageProps> = ({
       return;
     }
 
-    // 3. Run Visual 6-Stage Processing Pipeline
-    setCurrentStage('uploading');
-    setProgressPercent(15);
+    // 3. Run Visual 6-Stage Processing Pipeline with Real LLM Extraction
+    try {
+      setCurrentStage('uploading');
+      setProgressPercent(20);
 
-    const sizeStr = file.size > 1024 * 1024
-      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-      : `${Math.round(file.size / 1024)} KB`;
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setCurrentStage('validating');
+      setProgressPercent(40);
 
-    // Try reading text if text or markdown
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const textContent = typeof e.target?.result === 'string' ? e.target.result : undefined;
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setCurrentStage('ocr_extracting');
+      setProgressPercent(60);
 
-      setTimeout(() => {
-        setCurrentStage('validating');
-        setProgressPercent(35);
-      }, 500);
+      // Real asynchronous extraction request to backend
+      const bundlePromise = extractFromUploadedDocument(file);
 
-      setTimeout(() => {
-        setCurrentStage('ocr_extracting');
-        setProgressPercent(60);
-      }, 1100);
-
-      setTimeout(() => {
+      const structuringTimer = setTimeout(() => {
         setCurrentStage('info_structuring');
         setProgressPercent(85);
-      }, 1700);
+      }, 1000);
 
-      setTimeout(() => {
-        const bundle = extractFromUploadedDocument(file.name, extension?.toUpperCase() || 'PDF', sizeStr, textContent);
-        setExtractedBundle(bundle);
-        setCurrentStage('ready_for_review');
-        setProgressPercent(100);
-      }, 2300);
-    };
+      const bundle = await bundlePromise;
+      clearTimeout(structuringTimer);
 
-    reader.readAsText(file.slice(0, 50000));
+      setCurrentStage('info_structuring');
+      setProgressPercent(95);
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      setExtractedBundle(bundle);
+      setCurrentStage('ready_for_review');
+      setProgressPercent(100);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'An unexpected error occurred during medical report extraction.');
+      setCurrentStage('idle');
+      setProgressPercent(0);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {

@@ -340,79 +340,62 @@ Reviewing Endocrinologist: Dr. S. Kulkarni, MD`,
 };
 
 /**
- * Intelligent client-side parser for custom uploaded files.
- * Extracts test parameters from raw text or generates parsed structured tests.
+ * Dispatches the uploaded medical report to the MedLens Express backend (/api/extract)
+ * for OCR text extraction (pdf-parse / Tesseract.js) and Claude LLM clinical structuring.
+ * 
+ * Preserves the exact ExtractedReportBundle return shape.
+ * Throws explicit descriptive errors on network, OCR, LLM, or JSON validation failures.
  */
-export function extractFromUploadedDocument(
-  fileName: string,
-  fileType: string,
-  fileSize: string,
+export async function extractFromUploadedDocument(
+  fileOrName: File | string,
+  fileType?: string,
+  fileSize?: string,
   rawContent?: string
-): ExtractedReportBundle {
-  const lower = fileName.toLowerCase();
-  
-  if (lower.includes('cbc') || lower.includes('blood') || lower.includes('hemat')) {
-    return { ...SAMPLE_EXTRACTED_TEMPLATES.cbc, fileName, fileType, fileSize };
-  }
-  if (lower.includes('cmp') || lower.includes('metabolic') || lower.includes('glucose')) {
-    return { ...SAMPLE_EXTRACTED_TEMPLATES.metabolic, fileName, fileType, fileSize };
-  }
-  if (lower.includes('thyroid') || lower.includes('tsh') || lower.includes('endo')) {
-    return { ...SAMPLE_EXTRACTED_TEMPLATES.thyroid, fileName, fileType, fileSize };
+): Promise<ExtractedReportBundle> {
+  const formData = new FormData();
+
+  if (fileOrName instanceof File) {
+    formData.append('file', fileOrName, fileOrName.name);
+  } else {
+    // If invoked with fileName and raw text content
+    const content = rawContent || `Medical Report: ${fileOrName}`;
+    const extension = fileType?.toLowerCase() || 'txt';
+    const mimeType = extension === 'pdf' ? 'application/pdf' : 'text/plain';
+    const blob = new Blob([content], { type: mimeType });
+    formData.append('file', blob, fileOrName);
   }
 
-  // If raw text is provided from an uploaded text/markdown document, parse lines
-  if (rawContent && rawContent.trim().length > 20) {
-    const lines = rawContent.split('\n');
-    const parsedTests: Omit<MedicalTest, 'id' | 'patientId'>[] = [];
-    const today = new Date().toISOString().split('T')[0];
+  let response: Response;
+  try {
+    response = await fetch('/api/extract', {
+      method: 'POST',
+      body: formData,
+    });
+  } catch (netErr: any) {
+    throw new Error(`Connection error: Could not reach extraction server at /api/extract (${netErr?.message || 'Network offline'}). Please ensure the MedLens backend is running.`);
+  }
 
-    for (const line of lines) {
-      // Matches pattern: "TestName: Value Unit [Ref: Range]" or "TestName: Value Unit"
-      const match = line.match(/^([^:]+):\s*([\d.]+)\s*([a-zA-Z/%^0-9]+)?(?:\s*\[(?:Ref:?|Range:?)?\s*([^\]]+)\])?/i);
-      if (match) {
-        const testName = match[1].trim();
-        const value = match[2].trim();
-        const unit = (match[3] || '').trim();
-        const rawRange = (match[4] || '').trim();
-        const referenceRange = rawRange || "Reference range unavailable — status not determined.";
-        const status = calculateStatusFromRange(value, referenceRange);
-
-        parsedTests.push({
-          testName,
-          value,
-          numericValue: parseFloat(value),
-          unit,
-          referenceRange,
-          status,
-          date: today,
-          source: "Extracted from report",
-          confidence: 0.94,
-          observation: "Direct line extraction from uploaded clinical document"
-        });
+  if (!response.ok) {
+    let message = `Extraction failed with HTTP ${response.status} (${response.statusText})`;
+    try {
+      const errData = await response.json();
+      if (errData?.error) {
+        message = errData.details ? `${errData.error} Details: ${errData.details}` : errData.error;
       }
+    } catch {
+      const text = await response.text().catch(() => '');
+      if (text) message = text;
     }
-
-    if (parsedTests.length > 0) {
-      return {
-        fileName,
-        fileType,
-        fileSize,
-        reportDate: today,
-        reportType: "Clinical Laboratory Panel",
-        sourceFacility: "Direct Ingestion Feed",
-        meanConfidence: 0.95,
-        rawExtractedText: rawContent,
-        tests: parsedTests
-      };
-    }
+    // Graceful explicit error state (no silent mock)
+    throw new Error(message);
   }
 
-  // Default fallback to CBC panel with custom file attributes
-  return {
-    ...SAMPLE_EXTRACTED_TEMPLATES.cbc,
-    fileName,
-    fileType,
-    fileSize
-  };
+  const result = await response.json();
+
+  // Validate the parsed response conforms to ExtractedReportBundle shape
+  if (!result || typeof result !== 'object' || !Array.isArray(result.tests)) {
+    throw new Error('Malformed extraction response: Received data did not match the expected ExtractedReportBundle schema.');
+  }
+
+  return result as ExtractedReportBundle;
 }
