@@ -33,9 +33,17 @@ const { securityHeaders, rateLimiterMiddleware } = require('./middleware/securit
 const extractRouter = require('./routes/extract');
 const summarizeRouter = require('./routes/summarize');
 const conflictsRouter = require('./routes/conflicts');
+const patientsRouter = require('./routes/patients');
+const reportsRouter = require('./routes/reports');
+const testsRouter = require('./routes/tests');
+const { router: conflictsDataRouter } = require('./routes/conflicts-data');
+const { getDb } = require('./db/database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Initialize SQLite Database with Schema & Seed data
+getDb();
 
 // Harden Express configuration
 app.disable('x-powered-by');
@@ -66,6 +74,10 @@ app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use('/api', extractRouter);
 app.use('/api', summarizeRouter);
 app.use('/api', conflictsRouter);
+app.use('/api', patientsRouter);
+app.use('/api', reportsRouter);
+app.use('/api', testsRouter);
+app.use('/api', conflictsDataRouter);
 
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {

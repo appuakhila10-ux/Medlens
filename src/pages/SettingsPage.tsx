@@ -158,15 +158,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ patients }) => {
       {activeTab === 'security' && (
         <Card title="Security & Storage Architecture" subtitle="Current storage implementation, defensive controls, and architectural posture">
           <div className="space-y-3 max-w-2xl text-xs">
-            <div className="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50/60">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-blue-200 bg-blue-50/60">
               <div className="flex items-center gap-3">
-                <Database className="w-5 h-5 text-amber-700 shrink-0" />
+                <Database className="w-5 h-5 text-blue-700 shrink-0" />
                 <div>
-                  <span className="font-semibold text-slate-900 block">Browser Client Storage (localStorage)</span>
-                  <span className="text-slate-600">Current storage is in-browser localStorage, unencrypted, with no backend database persistence yet.</span>
+                  <span className="font-semibold text-slate-900 block">SQLite Relational Backend (better-sqlite3)</span>
+                  <span className="text-slate-600">SQLite backend, not yet encrypted at rest. Tables for patients, reports, tests, and conflicts backed by Express CRUD routes.</span>
                 </div>
               </div>
-              <Badge status="pending" label="Prototype Storage" />
+              <Badge status="verified" label="SQLite Active" />
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">

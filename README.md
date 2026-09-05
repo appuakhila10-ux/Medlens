@@ -9,7 +9,7 @@ MedLens is a **Prototype / MVP** clinical document intelligence and provenance t
 
 > [!WARNING]
 > **Prototype / Demonstration Sandbox Notice**:
-> Current data storage is unencrypted in-browser `localStorage` with no backend database persistence or user authentication yet. This build is an evaluation sandbox and clinical informatics proof-of-concept; it is **not** intended for real patient Protected Health Information (PHI) and carries **no** HIPAA or SOC-2 compliance certifications.
+> Persistence is provided via an embedded **SQLite backend, not yet encrypted at rest**, without user authentication yet. This build is an evaluation sandbox and clinical informatics proof-of-concept; it is **not** intended for real patient Protected Health Information (PHI) and carries **no** HIPAA or SOC-2 compliance certifications.
 
 ---
 
@@ -148,6 +148,14 @@ Open your browser at **[http://localhost:5173](http://localhost:5173)**.
 | Endpoint | Method | Description | Security Controls |
 | :--- | :--- | :--- | :--- |
 | `/api/health` | `GET` | Service health status & Claude API key check | Rate limited (60/min), `X-Request-Id` |
+| `/api/patients` | `GET`, `POST` | List all patients or create new patient record in SQLite | Rate limited (60/min), input sanitization |
+| `/api/patients/:id` | `GET`, `PUT`, `DELETE` | Retrieve, update, or delete single patient record in SQLite | Rate limited (60/min), input sanitization |
+| `/api/reports` | `GET`, `POST` | List medical reports or register verified report in SQLite | Rate limited (60/min), input sanitization |
+| `/api/reports/:id` | `GET`, `PUT`, `DELETE` | Retrieve, update status, or delete medical report | Rate limited (60/min) |
+| `/api/tests` | `GET`, `POST` | Query tests by patient/report or batch insert tests in SQLite | Rate limited (60/min), input sanitization |
+| `/api/tests/:id` | `GET`, `PUT`, `DELETE` | Retrieve, update values/status, or delete individual test | Rate limited (60/min) |
+| `/api/conflicts-data` | `GET`, `POST` | List stored clinical conflicts or record new conflict in SQLite | Rate limited (60/min), duplicate protection |
+| `/api/conflicts/:id` | `GET`, `PUT`, `DELETE` | Retrieve, update (resolve/acknowledge), or delete conflict | Rate limited (60/min) |
 | `/api/extract` | `POST` | Multipart file upload $\rightarrow$ OCR $\rightarrow$ Claude clinical extraction | Magic bytes, traversal sanitization, 25MB cap, rate limited (30/min) |
 | `/api/summarize` | `POST` | Verified patient labs $\rightarrow$ Non-diagnostic clinical narrative | Input XSS sanitization, non-diagnostic constraints, rate limited (30/min) |
 | `/api/conflicts` | `POST` | Multi-source chart vs report inconsistency detection | Input XSS sanitization, rate limited (30/min) |

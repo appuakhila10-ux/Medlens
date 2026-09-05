@@ -34,6 +34,16 @@ If no conflicts are found, return an empty array [].`;
 
 router.post('/conflicts', async (req, res) => {
   try {
+    // If this is a direct database conflict creation (contains category and patientId, without comparison chart)
+    if (req.body && req.body.title && req.body.category && req.body.patientId && !req.body.patient) {
+      const { getDb, formatConflictRow } = require('../db/database');
+      const { insertConflictRecord } = require('./conflicts-data');
+      const db = getDb();
+      const { id } = insertConflictRecord(db, req.body);
+      const created = db.prepare('SELECT * FROM clinical_conflicts WHERE id = ?').get(id);
+      return res.status(201).json(formatConflictRow(created));
+    }
+
     const { source1, source2, patient, report, tests } = req.body || {};
 
     let src1Name = source1?.name || `Patient Chart (${patient?.name || 'Documented'})`;

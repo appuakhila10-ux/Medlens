@@ -27,7 +27,8 @@ import {
   createStoredMedicalTests,
   getStoredConflicts,
   createStoredConflict,
-  getCurrentTimestamp
+  getCurrentTimestamp,
+  initStorageFromBackend
 } from './utils/storage';
 import { generatePatientAISummary } from './utils/aiSummary';
 import { detectClinicalConflicts } from './utils/conflictDetector';
@@ -47,11 +48,21 @@ export function App() {
   // Extracted report bundle queued for human verification
   const [activeExtractedBundle, setActiveExtractedBundle] = useState<ExtractedReportBundle | null>(null);
 
-  // Core persistent data stores from localStorage
+  // Core persistent data stores backed by SQLite REST API
   const [patients, setPatients] = useState<Patient[]>(() => getStoredPatients());
   const [reports, setReports] = useState<MedicalReport[]>(() => getStoredReports());
   const [medicalTests, setMedicalTests] = useState<MedicalTest[]>(() => getStoredMedicalTests());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Initial load: sync state directly from SQLite backend API
+  useEffect(() => {
+    initStorageFromBackend().then(() => {
+      setPatients(getStoredPatients());
+      setReports(getStoredReports());
+      setMedicalTests(getStoredMedicalTests());
+      setConflicts(getStoredConflicts());
+    });
+  }, []);
 
   // Sync selected patient ID on initial load or deletion fallback
   useEffect(() => {
@@ -278,7 +289,7 @@ export function App() {
               Prototype Sandbox
             </span>
             <p className="leading-snug text-amber-900">
-              <strong>Local Storage Only:</strong> Patient data is stored locally in the browser (unencrypted localStorage). This build is not intended for real patient data until backend persistence, authentication, and at-rest encryption are in place.
+              <strong>SQLite Backend Active:</strong> Patient data is persisted in a local SQLite database (better-sqlite3). This build is not intended for real patient data until user authentication and at-rest encryption are in place.
             </p>
           </div>
         </aside>
