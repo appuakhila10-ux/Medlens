@@ -165,15 +165,15 @@ export const CompareReportsPage: React.FC<CompareReportsPageProps> = ({
         noPadding
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50/90 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+          <table aria-label="Longitudinal Diagnostic Variance Comparison" className="w-full text-left text-sm">
+            <thead className="bg-slate-50/90 text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-100">
               <tr>
-                <th className="px-5 py-3.5">Test</th>
-                <th className="px-5 py-3.5">Previous Value</th>
-                <th className="px-5 py-3.5">Current Value</th>
-                <th className="px-5 py-3.5">Previous Ref Range</th>
-                <th className="px-5 py-3.5">Current Ref Range</th>
-                <th className="px-5 py-3.5 text-right">Mathematical Change</th>
+                <th scope="col" className="px-5 py-3.5">Test</th>
+                <th scope="col" className="px-5 py-3.5">Previous Value</th>
+                <th scope="col" className="px-5 py-3.5">Current Value</th>
+                <th scope="col" className="px-5 py-3.5">Previous Ref Range</th>
+                <th scope="col" className="px-5 py-3.5">Current Ref Range</th>
+                <th scope="col" className="px-5 py-3.5 text-right">Mathematical Change</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

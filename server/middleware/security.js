@@ -92,15 +92,19 @@ class SimpleRateLimiter {
   }
 }
 
-// 6. Express Middleware for HTTP Security Headers
+// 6. Express Middleware for HTTP Security Headers & Request Tracking
 function securityHeaders(req, res, next) {
+  const requestId = req.headers['x-request-id'] || `medlens-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  res.setHeader('X-Request-Id', requestId);
+  req.requestId = requestId;
+
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.anthropic.com;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.anthropic.com;"
   );
   res.removeHeader('X-Powered-By');
   next();

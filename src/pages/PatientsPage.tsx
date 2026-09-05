@@ -187,15 +187,15 @@ export const PatientsPage: React.FC<PatientsPageProps> = ({
       {filteredPatients.length > 0 && viewMode === 'table' && (
         <Card noPadding>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50/90 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+            <table aria-label="Patient Cohort Directory" className="w-full text-left text-sm">
+              <thead className="bg-slate-50/90 text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-100">
                 <tr>
-                  <th className="px-5 py-3.5">Patient ID</th>
-                  <th className="px-5 py-3.5">Name</th>
-                  <th className="px-5 py-3.5">Age / Sex</th>
-                  <th className="px-5 py-3.5">Key Conditions</th>
-                  <th className="px-5 py-3.5">Last Updated</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th scope="col" className="px-5 py-3.5">Patient ID</th>
+                  <th scope="col" className="px-5 py-3.5">Name</th>
+                  <th scope="col" className="px-5 py-3.5">Age / Sex</th>
+                  <th scope="col" className="px-5 py-3.5">Key Conditions</th>
+                  <th scope="col" className="px-5 py-3.5">Last Updated</th>
+                  <th scope="col" className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

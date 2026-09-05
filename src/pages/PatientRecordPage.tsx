@@ -403,16 +403,16 @@ export const PatientRecordPage: React.FC<PatientRecordPageProps> = ({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/90 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-100">
+            <table aria-label="Diagnostic Reports Registry" className="w-full text-left text-xs">
+              <thead className="bg-slate-50/90 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-100">
                 <tr>
-                  <th className="px-5 py-3">Report Name</th>
-                  <th className="px-5 py-3">Report Date</th>
-                  <th className="px-5 py-3">Upload Date</th>
-                  <th className="px-5 py-3">Processing Status</th>
-                  <th className="px-5 py-3">Verification Status</th>
-                  <th className="px-5 py-3">Extracted Tests</th>
-                  <th className="px-5 py-3 text-right">Action</th>
+                  <th scope="col" className="px-5 py-3">Report Name</th>
+                  <th scope="col" className="px-5 py-3">Report Date</th>
+                  <th scope="col" className="px-5 py-3">Upload Date</th>
+                  <th scope="col" className="px-5 py-3">Processing Status</th>
+                  <th scope="col" className="px-5 py-3">Verification Status</th>
+                  <th scope="col" className="px-5 py-3">Extracted Tests</th>
+                  <th scope="col" className="px-5 py-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -527,17 +527,17 @@ export const PatientRecordPage: React.FC<PatientRecordPageProps> = ({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50/90 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+            <table aria-label="Verified Clinical Laboratory Results" className="w-full text-left text-sm">
+              <thead className="bg-slate-50/90 text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-100">
                 <tr>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3">Test</th>
-                  <th className="px-5 py-3">Value</th>
-                  <th className="px-5 py-3">Unit</th>
-                  <th className="px-5 py-3">Reference Range (source report)</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Confidence</th>
-                  <th className="px-5 py-3">Provenance</th>
+                  <th scope="col" className="px-5 py-3">Date</th>
+                  <th scope="col" className="px-5 py-3">Test</th>
+                  <th scope="col" className="px-5 py-3">Value</th>
+                  <th scope="col" className="px-5 py-3">Unit</th>
+                  <th scope="col" className="px-5 py-3">Reference Range (source report)</th>
+                  <th scope="col" className="px-5 py-3">Status</th>
+                  <th scope="col" className="px-5 py-3">Confidence</th>
+                  <th scope="col" className="px-5 py-3">Provenance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

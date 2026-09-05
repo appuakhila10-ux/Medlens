@@ -77,9 +77,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`[MedLens Backend] Clinical Extraction server listening on port ${PORT}`);
-});
+// Start server if run directly
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[MedLens Backend] Clinical Extraction server listening on port ${PORT}`);
+  });
+}
 
 module.exports = app;

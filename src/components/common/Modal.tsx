@@ -22,18 +22,66 @@ export const Modal: React.FC<ModalProps> = ({
   role = 'dialog',
   ariaDescribedby
 }) => {
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  const previousActiveElement = React.useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement;
       document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleEsc);
+
+      // Auto-focus first interactive element inside the modal
+      const timer = setTimeout(() => {
+        if (modalRef.current) {
+          const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length > 0) {
+            focusable[0].focus();
+          }
+        }
+      }, 50);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+          return;
+        }
+
+        // WCAG 2.1 AA Keyboard Trap Prevention (Focus Wrapping)
+        if (e.key === 'Tab' && modalRef.current) {
+          const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = 'unset';
+        window.removeEventListener('keydown', handleKeyDown);
+        if (previousActiveElement.current && typeof previousActiveElement.current.focus === 'function') {
+          previousActiveElement.current.focus();
+        }
+      };
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleEsc);
-    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -54,11 +102,13 @@ export const Modal: React.FC<ModalProps> = ({
         aria-hidden="true"
       />
       <div 
+        ref={modalRef}
+        tabIndex={-1}
         role={role}
         aria-modal="true"
         aria-labelledby="modal-title"
         aria-describedby={ariaDescribedby}
-        className={`relative bg-white rounded-2xl shadow-xl border border-slate-200 w-full ${maxWidthClass} overflow-hidden z-10 animate-scaleUp`}
+        className={`relative bg-white rounded-2xl shadow-xl border border-slate-200 w-full ${maxWidthClass} overflow-hidden z-10 animate-scaleUp focus:outline-none`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
